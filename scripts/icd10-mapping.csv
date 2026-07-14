@@ -1,0 +1,475 @@
+category,suggested_icd10_chapter
+cardiovascular,Chapter IX Diseases of the circulatory system
+hypertension,Chapter IX Diseases of the circulatory system
+essential hypertension,Chapter IX Diseases of the circulatory system
+gestational hypertension/pre-eclampsia,"Chapter XV Pregnancy, childbirth and the puerperium"
+heart/cardiac problem,Chapter IX Diseases of the circulatory system
+angina,Chapter IX Diseases of the circulatory system
+heart attack/myocardial infarction,Chapter IX Diseases of the circulatory system
+heart failure/pulmonary odema,Chapter IX Diseases of the circulatory system
+heart arrhythmia,Chapter IX Diseases of the circulatory system
+atrial fibrillation,Chapter IX Diseases of the circulatory system
+atrial flutter,Chapter IX Diseases of the circulatory system
+wolff parkinson white / wpw syndrome,Chapter IX Diseases of the circulatory system
+irregular heart beat,Chapter IX Diseases of the circulatory system
+sick sinus syndrome,Chapter IX Diseases of the circulatory system
+svt / supraventricular tachycardia,Chapter IX Diseases of the circulatory system
+heart valve problem/heart murmur,Chapter IX Diseases of the circulatory system
+mitral valve disease,Chapter IX Diseases of the circulatory system
+mitral valve prolapse,Chapter IX Diseases of the circulatory system
+mitral stenosis,Chapter IX Diseases of the circulatory system
+mitral regurgitation / incompetence,Chapter IX Diseases of the circulatory system
+aortic valve disease,Chapter IX Diseases of the circulatory system
+aortic stenosis,Chapter IX Diseases of the circulatory system
+aortic regurgitation / incompetence,Chapter IX Diseases of the circulatory system
+cardiomyopathy,Chapter IX Diseases of the circulatory system
+hypertrophic cardiomyopathy (hcm / hocm),Chapter IX Diseases of the circulatory system
+pericardial problem,Chapter IX Diseases of the circulatory system
+pericarditis,Chapter IX Diseases of the circulatory system
+pericardial effusion,Chapter IX Diseases of the circulatory system
+myocarditis,Chapter IX Diseases of the circulatory system
+rheumatic fever,Chapter I Certain infectious and parasitic diseases
+cerebrovascular disease,Chapter IX Diseases of the circulatory system
+stroke,Chapter IX Diseases of the circulatory system
+subarachnoid haemorrhage,Chapter IX Diseases of the circulatory system
+brain haemorrhage,Chapter IX Diseases of the circulatory system
+ischaemic stroke,Chapter IX Diseases of the circulatory system
+transient ischaemic attack (tia),Chapter IX Diseases of the circulatory system
+subdural haemorrhage/haematoma,Chapter IX Diseases of the circulatory system
+cerebral aneurysm,Chapter IX Diseases of the circulatory system
+peripheral vascular disease,Chapter IX Diseases of the circulatory system
+leg claudication/ intermittent claudication,Chapter IX Diseases of the circulatory system
+arterial embolism,Chapter IX Diseases of the circulatory system
+aortic aneurysm,Chapter IX Diseases of the circulatory system
+aortic aneurysm rupture,Chapter IX Diseases of the circulatory system
+aortic dissection,Chapter IX Diseases of the circulatory system
+venous thromboembolic disease,Chapter IX Diseases of the circulatory system
+pulmonary embolism +/- dvt,Chapter IX Diseases of the circulatory system
+deep venous thrombosis (dvt),Chapter IX Diseases of the circulatory system
+high cholesterol,"Chapter IV Endocrine, nutritional and metabolic diseases"
+other venous/lymphatic disease,Chapter IX Diseases of the circulatory system
+varicose veins,Chapter IX Diseases of the circulatory system
+lymphoedema,Chapter IX Diseases of the circulatory system
+varicose ulcer,Chapter IX Diseases of the circulatory system
+respiratory/ent,Chapter X Diseases of the respiratory system
+asthma,Chapter X Diseases of the respiratory system
+chronic obstructive airways disease/copd,Chapter X Diseases of the respiratory system
+emphysema/chronic bronchitis,Chapter X Diseases of the respiratory system
+bronchitis,Chapter X Diseases of the respiratory system
+emphysema,Chapter X Diseases of the respiratory system
+alpha-1 antitrypsin deficiency,Chapter X Diseases of the respiratory system
+bronchiectasis,Chapter X Diseases of the respiratory system
+interstitial lung disease,Chapter IX Diseases of the circulatory system
+asbestosis,Chapter X Diseases of the respiratory system
+pulmonary fibrosis,Chapter X Diseases of the respiratory system
+fibrosing alveolitis/unspecified alveolitis,Chapter X Diseases of the respiratory system
+other respiratory problems,Chapter X Diseases of the respiratory system
+sleep apnoea,Chapter X Diseases of the respiratory system
+respiratory failure,Chapter X Diseases of the respiratory system
+pleurisy,Chapter X Diseases of the respiratory system
+pneumothorax,Chapter X Diseases of the respiratory system
+spontaneous pneumothorax/recurrent pneumothorax,Chapter X Diseases of the respiratory system
+pleural plaques (not known asbestosis),Chapter X Diseases of the respiratory system
+pleural effusion,Chapter X Diseases of the respiratory system
+ent disorder/not cancer,Chapter X Diseases of the respiratory system
+nasal/sinus disorder,Chapter X Diseases of the respiratory system
+chronic sinusitis,Chapter X Diseases of the respiratory system
+nasal polyps,Chapter X Diseases of the respiratory system
+throat or larynx disorder,Chapter X Diseases of the respiratory system
+chronic laryngitis,Chapter X Diseases of the respiratory system
+vocal cord polyp,Chapter X Diseases of the respiratory system
+tonsiltis,Chapter X Diseases of the respiratory system
+ear/vestibular disorder,Chapter VIII Diseases of the ear and mastoid process
+otosclerosis,Chapter VIII Diseases of the ear and mastoid process
+meniere's disease,Chapter VIII Diseases of the ear and mastoid process
+labyrinthitis,Chapter VIII Diseases of the ear and mastoid process
+vertigo,Chapter VIII Diseases of the ear and mastoid process
+tinnitus / tiniitis,Chapter VIII Diseases of the ear and mastoid process
+respiratory infection,Chapter X Diseases of the respiratory system
+pneumonia,Chapter X Diseases of the respiratory system
+lung abscess,Chapter X Diseases of the respiratory system
+empyema,Chapter X Diseases of the respiratory system
+gastrointestinal/abdominal,Chapter XI Diseases of the digestive system
+oesophageal disorder,Chapter XI Diseases of the digestive system
+gastro-oesophageal reflux (gord) / gastric reflux,Chapter XI Diseases of the digestive system
+oesophagitis/barretts oesophagus,Chapter XI Diseases of the digestive system
+oesophageal stricture,Chapter XI Diseases of the digestive system
+oesophageal varicies,Chapter XI Diseases of the digestive system
+hiatus hernia,Chapter XI Diseases of the digestive system
+stomach disorder,Chapter XI Diseases of the digestive system
+gastric/stomach ulcers,Chapter XI Diseases of the digestive system
+gastritis/gastric erosions,Chapter XI Diseases of the digestive system
+pyloric stenosis,Chapter XI Diseases of the digestive system
+bowel problem,Chapter XI Diseases of the digestive system
+irritable bowel syndrome,Chapter XI Diseases of the digestive system
+malabsorption/coeliac disease,Chapter XI Diseases of the digestive system
+duodenal ulcer,Chapter XI Diseases of the digestive system
+diverticular disease/diverticulitis,Chapter XI Diseases of the digestive system
+colitis/not crohns or ulcerative colitis,Chapter XI Diseases of the digestive system
+rectal or colon adenoma/polyps,Chapter II Neoplasms
+inflammatory bowel disease,Chapter XI Diseases of the digestive system
+crohns disease,Chapter XI Diseases of the digestive system
+ulcerative colitis,Chapter XI Diseases of the digestive system
+appendicitis,Chapter XI Diseases of the digestive system
+anal problem,Chapter XI Diseases of the digestive system
+anal fissure,Chapter XI Diseases of the digestive system
+haemorrhoids / piles,Chapter XI Diseases of the digestive system
+constipation,Chapter XI Diseases of the digestive system
+bowel / intestinal perforation,Chapter XI Diseases of the digestive system
+bowel / intestinal infarction,Chapter IX Diseases of the circulatory system
+bowel / intestinal obstruction,Chapter XI Diseases of the digestive system
+rectal prolapse,Chapter XI Diseases of the digestive system
+liver/biliary/pancreas problem,Chapter XI Diseases of the digestive system
+hepatitis,Chapter XI Diseases of the digestive system
+infective/viral hepatitis,Chapter I Certain infectious and parasitic diseases
+hepatitis a,Chapter I Certain infectious and parasitic diseases
+hepatitis b,Chapter I Certain infectious and parasitic diseases
+hepatitis c,Chapter I Certain infectious and parasitic diseases
+hepatitis d,Chapter I Certain infectious and parasitic diseases
+hepatitis e,Chapter I Certain infectious and parasitic diseases
+non-infective hepatitis,Chapter I Certain infectious and parasitic diseases
+liver failure/cirrhosis,Chapter XI Diseases of the digestive system
+primary biliary cirrhosis,Chapter XI Diseases of the digestive system
+alcoholic liver disease / alcoholic cirrhosis,Chapter XI Diseases of the digestive system
+bile duct disease,Chapter XI Diseases of the digestive system
+bile duct obstruction/ascending cholangitis,Chapter XI Diseases of the digestive system
+sclerosing cholangitis,Chapter XI Diseases of the digestive system
+gall bladder disease,Chapter XI Diseases of the digestive system
+cholelithiasis/gall stones,Chapter XI Diseases of the digestive system
+cholecystitis,Chapter XIV Diseases of the genitourinary system
+pancreatic disease,Chapter XI Diseases of the digestive system
+pancreatitis,Chapter XI Diseases of the digestive system
+haemochromatosis,"Chapter IV Endocrine, nutritional and metabolic diseases"
+jaundice (unknown cause),"Chapter XVIII Symptoms, signs and abnormal clinical/laboratory findings, NEC"
+other abdominal problem,Chapter XI Diseases of the digestive system
+peritonitis,Chapter XI Diseases of the digestive system
+gastrointestinal bleeding,Chapter XI Diseases of the digestive system
+peptic ulcer,Chapter XI Diseases of the digestive system
+gastroenteritis/dysentry,Chapter XI Diseases of the digestive system
+dyspepsia / indigestion,Chapter XI Diseases of the digestive system
+abdominal hernia,Chapter XI Diseases of the digestive system
+umbilical hernia,Chapter XI Diseases of the digestive system
+inguinal hernia,Chapter XI Diseases of the digestive system
+femoral hernia,Chapter XI Diseases of the digestive system
+incisional hernia,Chapter XI Diseases of the digestive system
+renal/urology,Chapter XIV Diseases of the genitourinary system
+renal/kidney failure,Chapter XIV Diseases of the genitourinary system
+renal failure requiring dialysis,Chapter XIV Diseases of the genitourinary system
+renal failure not requiring dialysis,Chapter XIV Diseases of the genitourinary system
+urinary tract infection/kidney infection,Chapter XIV Diseases of the genitourinary system
+cystitis,Chapter XIV Diseases of the genitourinary system
+pyelonephritis,Chapter XIV Diseases of the genitourinary system
+kidney stone/ureter stone/bladder stone,Chapter XIV Diseases of the genitourinary system
+ureteric obstruction/hydronephrosis,Chapter XIV Diseases of the genitourinary system
+bladder problem (not cancer),Chapter XIV Diseases of the genitourinary system
+urinary frequency / incontinence,Chapter XIV Diseases of the genitourinary system
+other urological problem (male),Chapter XIV Diseases of the genitourinary system
+prostate problem (not cancer),Chapter XIV Diseases of the genitourinary system
+enlarged prostate,Chapter XIV Diseases of the genitourinary system
+bph / benign prostatic hypertrophy,Chapter XIV Diseases of the genitourinary system
+prostatitis,Chapter XIV Diseases of the genitourinary system
+scrotal problem (not cancer),Chapter XIV Diseases of the genitourinary system
+testicular problems (not cancer),Chapter XIV Diseases of the genitourinary system
+male infertility,Chapter XIV Diseases of the genitourinary system
+erectile dysfunction / impotence,Chapter XIV Diseases of the genitourinary system
+undescended testicle,Chapter XIV Diseases of the genitourinary system
+other renal/kidney problem,Chapter XIV Diseases of the genitourinary system
+polycystic kidney,Chapter XIV Diseases of the genitourinary system
+kidney nephropathy,Chapter XIV Diseases of the genitourinary system
+iga nephropathy,Chapter XIV Diseases of the genitourinary system
+diabetic nephropathy,Chapter XIV Diseases of the genitourinary system
+nephritis,Chapter XIV Diseases of the genitourinary system
+glomerulnephritis,Chapter XIV Diseases of the genitourinary system
+endocrine/diabetes,"Chapter IV Endocrine, nutritional and metabolic diseases"
+diabetes,"Chapter IV Endocrine, nutritional and metabolic diseases"
+gestational diabetes,"Chapter XV Pregnancy, childbirth and the puerperium"
+type 1 diabetes,"Chapter IV Endocrine, nutritional and metabolic diseases"
+type 2 diabetes,"Chapter IV Endocrine, nutritional and metabolic diseases"
+diabetes insipidus,"Chapter IV Endocrine, nutritional and metabolic diseases"
+thyroid problem (not cancer),"Chapter IV Endocrine, nutritional and metabolic diseases"
+hyperthyroidism/thyrotoxicosis,"Chapter IV Endocrine, nutritional and metabolic diseases"
+hypothyroidism/myxoedema,"Chapter IV Endocrine, nutritional and metabolic diseases"
+thyroid radioablation therapy,"Chapter IV Endocrine, nutritional and metabolic diseases"
+thyroiditis,"Chapter IV Endocrine, nutritional and metabolic diseases"
+grave's disease,"Chapter IV Endocrine, nutritional and metabolic diseases"
+thyroid goitre,"Chapter IV Endocrine, nutritional and metabolic diseases"
+parathyroid gland problem (not cancer),"Chapter IV Endocrine, nutritional and metabolic diseases"
+parathyroid hyperplasia/adenoma,Chapter II Neoplasms
+hyperparathyroidism,"Chapter IV Endocrine, nutritional and metabolic diseases"
+disorder of adrenal gland,Chapter XIV Diseases of the genitourinary system
+adrenal tumour,Chapter II Neoplasms
+adrenocortical insufficiency/addison's disease,"Chapter IV Endocrine, nutritional and metabolic diseases"
+hyperaldosteronism/conn's syndrome,"Chapter IV Endocrine, nutritional and metabolic diseases"
+phaeochromocytoma,"Chapter IV Endocrine, nutritional and metabolic diseases"
+disorder or pituitary gland,"Chapter IV Endocrine, nutritional and metabolic diseases"
+pituitary adenoma/tumour,Chapter II Neoplasms
+acromegaly,"Chapter IV Endocrine, nutritional and metabolic diseases"
+hypopituitarism,"Chapter IV Endocrine, nutritional and metabolic diseases"
+hyperprolactinaemia,"Chapter IV Endocrine, nutritional and metabolic diseases"
+cushings syndrome,"Chapter IV Endocrine, nutritional and metabolic diseases"
+carcinoid syndrome/tumour,Chapter II Neoplasms
+benign insulinoma,Chapter II Neoplasms
+neurology/eye/psychiatry,Other / mixed / unclassifiable / needs manual check
+neurology,Chapter VI Diseases of the nervous system
+infection of nervous system,Chapter I Certain infectious and parasitic diseases
+brain abscess/intracranial abscess,Chapter VI Diseases of the nervous system
+encephalitis,Chapter VI Diseases of the nervous system
+meningitis,Chapter VI Diseases of the nervous system
+spinal abscess,Chapter VI Diseases of the nervous system
+cranial nerve problem/palsy,Chapter VI Diseases of the nervous system
+bell's palsy/facial nerve palsy,Chapter VI Diseases of the nervous system
+trigemminal neuralgia,Chapter VI Diseases of the nervous system
+spinal cord disorder,Chapter VI Diseases of the nervous system
+paraplegia,Chapter VI Diseases of the nervous system
+spina bifida,"Chapter XVII Congenital malformations, deformations and chromosomal abnormalities"
+peripheral nerve disorder,Chapter VI Diseases of the nervous system
+peripheral neuropathy,Chapter VI Diseases of the nervous system
+acute infective polyneuritis/guillain-barre syndrome,Chapter I Certain infectious and parasitic diseases
+trapped nerve/compressed nerve,Chapter VI Diseases of the nervous system
+diabetic neuropathy/ulcers,Chapter XI Diseases of the digestive system
+chronic/degenerative neurological problem,Chapter XIV Diseases of the genitourinary system
+motor neurone disease,Chapter VI Diseases of the nervous system
+myasthenia gravis,Chapter VI Diseases of the nervous system
+multiple sclerosis,Chapter VI Diseases of the nervous system
+parkinsons disease,Chapter VI Diseases of the nervous system
+dementia/alzheimers/cognitive impairment,Chapter IX Diseases of the circulatory system
+other demyelinating disease (not multiple sclerosis),Chapter VI Diseases of the nervous system
+epilepsy,Chapter VI Diseases of the nervous system
+migraine,Chapter VI Diseases of the nervous system
+cerebral palsy,Chapter VI Diseases of the nervous system
+other neurological problem,Chapter XIV Diseases of the genitourinary system
+headaches (not migraine),Chapter VI Diseases of the nervous system
+myasthenia gravis,Chapter VI Diseases of the nervous system
+benign / essential tremor,Chapter IX Diseases of the circulatory system
+polio / poliomyelitis,Chapter I Certain infectious and parasitic diseases
+meningioma / benign meningeal tumour,Chapter II Neoplasms
+benign neuroma,Chapter II Neoplasms
+neurological injury/trauma,Chapter XIV Diseases of the genitourinary system
+head injury,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+spinal injury,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+peripheral nerve injury,Chapter VI Diseases of the nervous system
+eye/eyelid problem,Chapter VII Diseases of the eye and adnexa
+eye infection,Chapter VII Diseases of the eye and adnexa
+retinal problem,Chapter VII Diseases of the eye and adnexa
+retinal detachment,Chapter VII Diseases of the eye and adnexa
+retinal artery/vein occlusion,Chapter VII Diseases of the eye and adnexa
+retinitis pigmentosa,Chapter VII Diseases of the eye and adnexa
+macular degeneration,Chapter VII Diseases of the eye and adnexa
+diabetic eye disease,Chapter VII Diseases of the eye and adnexa
+glaucoma,Chapter VII Diseases of the eye and adnexa
+cataract,Chapter VII Diseases of the eye and adnexa
+eye trauma,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+optic neuritis,Chapter VI Diseases of the nervous system
+dry eyes,Chapter VII Diseases of the eye and adnexa
+iritis,Chapter VII Diseases of the eye and adnexa
+blepharitis / eyelid infection,Chapter VII Diseases of the eye and adnexa
+psychological/psychiatric problem,Chapter V Mental and behavioural disorders
+depression,Chapter V Mental and behavioural disorders
+post-natal depression,Chapter V Mental and behavioural disorders
+anxiety/panic attacks,Chapter V Mental and behavioural disorders
+nervous breakdown,Chapter V Mental and behavioural disorders
+schizophrenia,Chapter V Mental and behavioural disorders
+deliberate self-harm/suicide attempt,Chapter XX External causes of morbidity and mortality
+mania/bipolar disorder/manic depression,Chapter V Mental and behavioural disorders
+substance abuse/dependency,Chapter V Mental and behavioural disorders
+alcohol dependency,Chapter V Mental and behavioural disorders
+opioid dependency,Chapter V Mental and behavioural disorders
+other substance abuse/dependency,Chapter V Mental and behavioural disorders
+post-traumatic stress disorder,Chapter V Mental and behavioural disorders
+anorexia/bulimia/other eating disorder,Chapter V Mental and behavioural disorders
+stress,Chapter V Mental and behavioural disorders
+obsessive compulsive disorder (ocd),Chapter V Mental and behavioural disorders
+insomnia,Chapter VI Diseases of the nervous system
+musculoskeletal/trauma,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+bone disorder,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+osteomyelitis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+osteoporosis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+paget's disease,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+osteopenia,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+back problem,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+spine arthritis/spondylitis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+ankylosing spondylitis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+sciatica,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+disc problem,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+prolapsed disc/slipped disc,Chapter XIV Diseases of the genitourinary system
+disc degeneration,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+back pain,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+scoliosis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+spinal stenosis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+joint disorder,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+rheumatoid arthritis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+osteoarthritis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+gout,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+other joint disorder,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+joint pain,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+psoriatic arthropathy,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+arthritis (nos),Chapter XIII Diseases of the musculoskeletal system and connective tissue
+muscle/soft tissue problem,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+myositis/myopathy,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+muscle or soft tissue injuries,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+plantar fascitis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+carpal tunnel syndrome,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+fibromyalgia,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+dupuytren's contracture,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+soft tissue inflammation,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+tendonitis / tendinitis / tenosynovitis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+bursitis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+housemaid's knee (prepatellar bursitis),Chapter XIII Diseases of the musculoskeletal system and connective tissue
+synovitis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+epicondylitis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+tennis elbow / lateral epicondylitis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+burns,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+neck problem/injury,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+cervical spondylosis,Chapter XIV Diseases of the genitourinary system
+fracture,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture head & neck,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture skull / head,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture jaw,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture nose,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture face / orbit / eye socket,Chapter VII Diseases of the eye and adnexa
+fracture neck / cervical fracture,Chapter XIV Diseases of the genitourinary system
+fracture upper limb & shoulder,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture clavicle / collar bone,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture shoulder / scapula,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture upper arm / humerus / elbow,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture forearm / wrist,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture radius,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture ulna,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture wrist / colles fracture,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture hand,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture finger,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture thumb,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+other fractures,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture rib,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture sternum,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture vertebra / crush fracture / vertebral collapse,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture pelvis & lower limb,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture pelvis,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture neck of femur / hip,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture shaft of femur,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture patella / knee,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture lower leg / ankle,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture tibia,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture fibula,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture foot,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture metatarsal,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+fracture toe,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+haematology/dermatology,Other / mixed / unclassifiable / needs manual check
+haematology,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+clotting disorder/excessive bleeding,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+low platelets/platelet disorder,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+haemophilia,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+essential thrombocytosis,Chapter IX Diseases of the circulatory system
+anaemia,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+iron deficiency anaemia,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+pernicious anaemia,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+aplastic anaemia,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+pancytopenia,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+neutropenia/lymphopenia,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+myeloproliferative disorder,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+polycythaemia vera,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+myelofibrosis,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+monoclonal gammopathy/not myeloma,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+hereditary/genetic haematological disorder,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+sickle cell disease,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+thalassaemia,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+dermatology,Chapter XII Diseases of the skin and subcutaneous tissue
+eczema/dermatitis,Chapter XII Diseases of the skin and subcutaneous tissue
+psoriasis,Chapter XII Diseases of the skin and subcutaneous tissue
+blistering/desquamating skin disorder,Chapter XII Diseases of the skin and subcutaneous tissue
+stevens johnson syndrome,Chapter XII Diseases of the skin and subcutaneous tissue
+pemphigoid/pemphigus,Chapter XII Diseases of the skin and subcutaneous tissue
+chronic skin ulcers,Chapter XI Diseases of the digestive system
+acne/acne vulgaris,Chapter XII Diseases of the skin and subcutaneous tissue
+lichen planus,Chapter XII Diseases of the skin and subcutaneous tissue
+lichen sclerosis,Chapter XII Diseases of the skin and subcutaneous tissue
+cellulitis,Chapter XII Diseases of the skin and subcutaneous tissue
+rosacea,Chapter XII Diseases of the skin and subcutaneous tissue
+vitiligo,Chapter XII Diseases of the skin and subcutaneous tissue
+alopecia / hair loss,Chapter XII Diseases of the skin and subcutaneous tissue
+bowen's disease,Chapter II Neoplasms
+gynaecology/breast,Chapter XIV Diseases of the genitourinary system
+gynaecological disorder (not cancer),Chapter XIV Diseases of the genitourinary system
+female infertility,Chapter XIV Diseases of the genitourinary system
+ovarian problem,Chapter XIV Diseases of the genitourinary system
+ovarian cyst or cysts,Chapter XIV Diseases of the genitourinary system
+hydatiform mole,"Chapter XV Pregnancy, childbirth and the puerperium"
+polycystic ovaries/polycystic ovarian syndrome,Chapter XIV Diseases of the genitourinary system
+uterine problem,Chapter XIV Diseases of the genitourinary system
+uterine fibroids,Chapter XIV Diseases of the genitourinary system
+uterine polyps,Chapter XIV Diseases of the genitourinary system
+vaginal prolapse/uterine prolapse,Chapter XIV Diseases of the genitourinary system
+endometriosis,Chapter XIV Diseases of the genitourinary system
+cervical problem,Chapter XIV Diseases of the genitourinary system
+cervical intra-epithelial neoplasia (cin) / precancerous cells cervix,Chapter XIV Diseases of the genitourinary system
+abnormal smear (cervix),"Chapter XVIII Symptoms, signs and abnormal clinical/laboratory findings, NEC"
+cervical polyps,Chapter XIV Diseases of the genitourinary system
+cervical erosion,Chapter XIV Diseases of the genitourinary system
+menorrhagia (unknown cause),Chapter XIV Diseases of the genitourinary system
+pelvic inflammatory disease/ pid,Chapter XIV Diseases of the genitourinary system
+dysmenorrhoea / dysmenorrhea,Chapter XIV Diseases of the genitourinary system
+menopausal symptoms / menopause,Chapter XIV Diseases of the genitourinary system
+breast disease (not cancer),Chapter XIV Diseases of the genitourinary system
+fibrocystic disease,Chapter XIV Diseases of the genitourinary system
+breast cysts,Chapter XIV Diseases of the genitourinary system
+breast fibroadenoma,Chapter II Neoplasms
+benign breast lump,Chapter XIV Diseases of the genitourinary system
+obstetric problem,"Chapter XV Pregnancy, childbirth and the puerperium"
+ectopic pregnancy,"Chapter XV Pregnancy, childbirth and the puerperium"
+miscarriage,"Chapter XV Pregnancy, childbirth and the puerperium"
+immunological/systemic disorders,Other / mixed / unclassifiable / needs manual check
+sarcoidosis,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+connective tissue disorder,"Chapter IV Endocrine, nutritional and metabolic diseases"
+vasculitis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+giant cell/temporal arteritis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+polymyalgia rheumatica,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+wegners granulmatosis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+microscopic polyarteritis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+polyartertis nodosa,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+systemic lupus erythematosis/sle,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+sjogren's syndrome/sicca syndrome,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+dermatopolymyositis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+dermatomyositis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+polymyositis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+scleroderma/systemic sclerosis,Chapter XIII Diseases of the musculoskeletal system and connective tissue
+raynaud's phenomenon/disease,Chapter IX Diseases of the circulatory system
+allergy/hypersensitivity/anaphylaxis,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+allergy or anaphylactic reaction to food,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+allergy or anaphylactic reaction to drug,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+hayfever/allergic rhinitis,Chapter X Diseases of the respiratory system
+food intolerance,Chapter XI Diseases of the digestive system
+urticaria,Chapter XII Diseases of the skin and subcutaneous tissue
+allergy to house dust mite,"Chapter XIX Injury, poisoning and certain other consequences of external causes"
+contact dermatitis,Chapter XII Diseases of the skin and subcutaneous tissue
+allergy to elastoplast,Chapter XII Diseases of the skin and subcutaneous tissue
+allergy to nickel,Chapter XII Diseases of the skin and subcutaneous tissue
+chronic fatigue syndrome,Chapter VI Diseases of the nervous system
+antiphospholipid syndrome,Chapter III Diseases of the blood and blood-forming organs and certain immune disorders
+infections,Chapter I Certain infectious and parasitic diseases
+septicaemia / sepsis,Chapter I Certain infectious and parasitic diseases
+viral infection,Chapter I Certain infectious and parasitic diseases
+hiv/aids,Chapter I Certain infectious and parasitic diseases
+measles / morbillivirus,Chapter I Certain infectious and parasitic diseases
+rubella / german measles,Chapter I Certain infectious and parasitic diseases
+varicella zoster virus,Chapter I Certain infectious and parasitic diseases
+chickenpox,Chapter I Certain infectious and parasitic diseases
+shingles,Chapter I Certain infectious and parasitic diseases
+herpes simplex,Chapter I Certain infectious and parasitic diseases
+infectious mononucleosis / glandular fever / epstein barr virus (ebv),Chapter I Certain infectious and parasitic diseases
+mumps / epidemic parotitis,Chapter I Certain infectious and parasitic diseases
+bacterial infection,Chapter I Certain infectious and parasitic diseases
+mrsa / methicillin resistant staphylococcus aureus,Chapter I Certain infectious and parasitic diseases
+helicobacter pylori,Chapter I Certain infectious and parasitic diseases
+tuberculosis (tb),Chapter I Certain infectious and parasitic diseases
+diphtheria,Chapter I Certain infectious and parasitic diseases
+whooping cough / pertussis,Chapter I Certain infectious and parasitic diseases
+scarlet fever / scarlatina,Chapter I Certain infectious and parasitic diseases
+chlamydia,Chapter I Certain infectious and parasitic diseases
+tropical & travel-related infections,Chapter I Certain infectious and parasitic diseases
+malaria,Chapter I Certain infectious and parasitic diseases
+schistosomiasis/bilharzia,Chapter I Certain infectious and parasitic diseases
+dengue fever,Chapter I Certain infectious and parasitic diseases
+typhoid fever,Chapter I Certain infectious and parasitic diseases
+giardia / giardiasis,Chapter I Certain infectious and parasitic diseases
+yellow fever,Chapter I Certain infectious and parasitic diseases
+unclassifiable,Other / mixed / unclassifiable / needs manual check

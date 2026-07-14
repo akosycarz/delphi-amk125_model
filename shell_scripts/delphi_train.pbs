@@ -1,0 +1,30 @@
+#!/bin/bash
+#PBS -N delphi_train
+#PBS -l select=1:ncpus=4:mem=64gb:ngpus=1:gpu_type=A100
+#PBS -l walltime=24:00:00
+#PBS -j oe
+#PBS -o /rds/general/project/hda_24-25/live/amk125_thesis/logs/delphi_train.log
+
+echo "Starting Delphi training at $(date)"
+echo "Node: $(hostname)"
+echo "GPUs: $CUDA_VISIBLE_DEVICES"
+
+# Load conda environment
+eval "$(~/anaconda3/bin/conda shell.bash hook)"
+conda activate delphi
+
+# Move into Delphi repo directory
+cd /rds/general/project/hda_24-25/live/amk125_thesis/Delphi
+
+# After running delphi_preprocess.R, update vocab_size and ignore_tokens
+# by reading from the vocab_meta.rds (see delphi_update_config.R helper)
+# or pass them directly on the command line:
+#   --vocab_size=577126 --ignore_tokens="[0,1,2,3,...]"
+
+python train.py config/train_ukb_amk125.py \
+    --device=cuda \
+    --out_dir=ukb_amk125_model \
+    --dtype=bfloat16 \
+    --compile=False
+
+echo "Training done at $(date)"
