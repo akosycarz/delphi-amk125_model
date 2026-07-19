@@ -1,7 +1,7 @@
 import os
 import time
 
-out_dir = "ukb_amk125_model"
+out_dir = "out_clinical_demographics_ukb_biochem"
 
 eval_interval = 250
 eval_iters = 25
@@ -12,7 +12,7 @@ wandb_log = False
 wandb_project = "delphi"
 wandb_run_name = "ukb_amk125_" + str(time.time())
 
-dataset = "ukb_amk125"
+dataset = "ukb_amk125_clinical_demographics_ukb_biochem"
 
 batch_size = 64
 block_size = 128
@@ -28,8 +28,8 @@ bias = False
 config_values_path = os.path.join("data", dataset, "config_values.py")
 if not os.path.exists(config_values_path):
     raise FileNotFoundError(
-        "Missing data/ukb_amk125/config_values.py. "
-        "Run scripts/write_ukb_amk125_config_values.R first."
+        f"Missing {config_values_path}. "
+        "Run scripts/delphi_preprocess.R first."
     )
 exec(open(config_values_path).read())
 

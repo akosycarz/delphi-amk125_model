@@ -1,7 +1,7 @@
 import os
 import time
 
-out_dir = "dryrun_clinical_demographics_ukb_biochem"
+out_dir = "dryrun_clinical_demographics_ukb"
 
 eval_interval = 20
 eval_iters = 5
@@ -10,9 +10,9 @@ always_save_checkpoint = False
 
 wandb_log = False
 wandb_project = "delphi"
-wandb_run_name = "dryrun_clinical_demographics_ukb_biochem_" + str(time.time())
+wandb_run_name = "dryrun_clinical_demographics_ukb_" + str(time.time())
 
-dataset = "ukb_amk125_clinical_demographics_ukb_biochem"
+dataset = "ukb_amk125_clinical_demographics_ukb"
 
 batch_size = 16
 block_size = 64

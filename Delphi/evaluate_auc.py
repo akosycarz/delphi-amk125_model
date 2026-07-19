@@ -424,25 +424,25 @@ def evaluate_auc_pipeline(
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate AUC")
-    parser.add_argument("--input_path", type=str, help="Path to the dataset")
-    parser.add_argument("--output_path", type=str, help="Path to the output")
-    parser.add_argument("--model_ckpt_path", type=str, help="Path to the model weights")
-    parser.add_argument("--no_event_token_rate", type=int, help="No event token rate")
-    parser.add_argument(
-        "--health_token_replacement_prob", default=0.0, type=float, help="Health token replacement probability"
-    )
+    parser.add_argument("--input_path", type=str, required=True,
+                        help="Path to the dataset folder (e.g. data/ukb_amk125_clinical_demographics_ukb_biochem)")
+    parser.add_argument("--output_path", type=str, required=True, help="Path to the output directory")
+    parser.add_argument("--model_ckpt_path", type=str, required=True, help="Path to the model checkpoint (.pt)")
+    parser.add_argument("--no_event_token_rate", type=int, default=5, help="No event token rate")
+    parser.add_argument("--split", type=str, default="test", choices=["val", "test"],
+                        help="Which data split to evaluate on. Use 'test' for final evaluation (default), "
+                             "'val' to match training-time monitoring.")
     parser.add_argument("--dataset_subset_size", type=int, default=-1, help="Dataset subset size for evaluation")
     parser.add_argument("--n_bootstrap", type=int, default=1, help="Number of bootstrap samples")
     # Optional filtering/chunking parameters:
     parser.add_argument("--filter_min_total", type=int, default=100, help="Minimum total count to filter tokens")
     parser.add_argument("--disease_chunk_size", type=int, default=200, help="Chunk size for processing diseases")
+    parser.add_argument("--delphi_labels_path", type=str, default="delphi_labels_chapters_colours_icd.csv",
+                        help="Path to the external ICD-chapter labels CSV")
     args = parser.parse_args()
 
     input_path = args.input_path
     output_path = args.output_path
-    no_event_token_rate = args.no_event_token_rate
-    health_token_replacement_prob = args.health_token_replacement_prob
-    dataset_subset_size = args.dataset_subset_size
 
     # Create output folder if it doesn't exist.
     Path(output_path).mkdir(exist_ok=True, parents=True)
@@ -460,29 +460,52 @@ def main():
     model.eval()
     model = model.to(device)
 
-    # Load training and validation data.
-    val = np.fromfile(f"{input_path}/val.bin", dtype=np.uint32).reshape(-1, 3).astype(np.int64)
+    # Load the requested split (test for final evaluation, val for monitoring).
+    split_file = Path(input_path) / f"{args.split}.bin"
+    if not split_file.exists():
+        raise FileNotFoundError(
+            f"{split_file} not found. Run scripts/delphi_preprocess.R to generate it."
+        )
+    print(f"Loading {args.split} split from: {split_file}")
+    data = np.fromfile(split_file, dtype=np.uint32).reshape(-1, 3).astype(np.int64)
 
-    val_p2i = get_p2i(val)
+    data_p2i = get_p2i(data)
 
+    dataset_subset_size = args.dataset_subset_size
     if dataset_subset_size == -1:
-        dataset_subset_size = len(val_p2i)
+        dataset_subset_size = len(data_p2i)
 
     # Get a subset batch for evaluation.
     d100k = get_batch(
         range(dataset_subset_size),
-        val,
-        val_p2i,
+        data,
+        data_p2i,
         select="left",
         block_size=80,
         device=device,
         padding="random",
-        no_event_token_rate=no_event_token_rate,
-        health_token_replacement_prob=health_token_replacement_prob,
+        no_event_token_rate=args.no_event_token_rate,
     )
 
-    # Load labels (external) to be passed in.
-    delphi_labels = pd.read_csv("delphi_labels_chapters_colours_icd.csv")
+    # Load external ICD-chapter labels.
+    delphi_labels = pd.read_csv(args.delphi_labels_path)
+
+    # Filter diseases_of_interest to tokens that exist in this configuration's vocabulary.
+    # labels.csv in the dataset folder lists all tokens produced by delphi_preprocess.R.
+    dataset_labels_path = Path(input_path) / "labels.csv"
+    if dataset_labels_path.exists():
+        dataset_labels = pd.read_csv(dataset_labels_path)
+        # labels.csv rows are 0-indexed and align with model token IDs (row N = token N).
+        available_token_ids = set(dataset_labels.index.tolist())
+        diseases_of_interest = [
+            idx for idx in get_common_diseases(delphi_labels, args.filter_min_total)
+            if idx in available_token_ids
+        ]
+        print(f"Loaded {len(dataset_labels)} tokens from {dataset_labels_path}; "
+              f"{len(diseases_of_interest)} disease tokens selected for evaluation.")
+    else:
+        print(f"Warning: {dataset_labels_path} not found; using all common diseases from delphi_labels.")
+        diseases_of_interest = None
 
     # Call the internal evaluation function.
     df_auc_unpooled, df_auc_merged = evaluate_auc_pipeline(
@@ -490,7 +513,7 @@ def main():
         d100k,
         output_path,
         delphi_labels,
-        diseases_of_interest=None,
+        diseases_of_interest=diseases_of_interest,
         filter_min_total=args.filter_min_total,
         disease_chunk_size=args.disease_chunk_size,
         device=device,
