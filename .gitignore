@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Data
+data/
+Delphi/data/
+
+# Model checkpoints and outputs
+Delphi/out_*/
+Delphi/dryrun_*/
+Delphi/results/
+
+# Environments
+delphi-env/
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
