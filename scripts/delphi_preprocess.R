@@ -60,6 +60,15 @@ disease_codings <- c("ICD10", "self_reported_cancer", "self_reported_non_cancer"
 # Number of quantile bins for continuous measurements (e.g. albumin).
 n_value_bins <- 4L
 
+# Healthy-cohort reporting settings. A participant is healthy at an index age
+# when no qualifying diagnosis has been recorded on or before that age and no
+# death has been recorded before that age. Reports are produced for both an
+# ICD-only definition and an ICD + self-reported definition.
+HEALTHY_AGE_MIN  <- 40L
+HEALTHY_AGE_MAX  <- 80L
+HEALTHY_AGE_STEP <- 5L
+HEALTHY_DETAIL_AGE <- 50L
+
 # --- Helper ------------------------------------------------------------------
 ensure_chapter_column <- function(dt) {
   dt <- as.data.table(dt)
@@ -102,7 +111,8 @@ configs <- list(
 # Clinical ICD history defines the comparison cohort. This prevents optional
 # sources (especially self-report) from changing the evaluated population.
 clinical_cohort <- as.data.table(clinical_history_icd)[
-  !is.na(eid) & !is.na(coding) & !is.na(code) & !is.na(age)
+  !is.na(eid) & !is.na(coding) & !is.na(code) & !is.na(age) &
+    coding %in% c("ICD10", "ICD9")
 ]
 clinical_cohort[, age_numeric := suppressWarnings(as.numeric(age))]
 all_eids <- sort(unique(as.character(
@@ -140,6 +150,288 @@ cat(sprintf(
   length(test_eids),  100 * length(test_eids)  / n_total
 ))
 
+# --- Healthy-participant reports ---------------------------------------------
+make_healthy_reports <- function() {
+  cat("Creating healthy-participant reports...\n")
+
+  prepare_diagnoses <- function(dt, allowed_codings) {
+    x <- as.data.table(dt)
+    x <- x[!is.na(eid) & !is.na(coding) & !is.na(age)]
+    x[, `:=`(
+      eid = as.character(eid),
+      coding = as.character(coding),
+      diagnosis_age = suppressWarnings(as.numeric(age))
+    )]
+    x[eid %in% all_eids & coding %in% allowed_codings & !is.na(diagnosis_age),
+      .(first_diagnosis_age = min(diagnosis_age)), by = eid]
+  }
+
+  icd_first <- prepare_diagnoses(clinical_history_icd, c("ICD10", "ICD9"))
+  all_diagnosis_sources <- rbindlist(
+    list(clinical_history_icd, self_reported_cancer, self_reported_noncancer),
+    use.names = TRUE, fill = TRUE
+  )
+  icd_sr_first <- prepare_diagnoses(
+    all_diagnosis_sources,
+    c("ICD10", "ICD9", "self_reported_cancer", "self_reported_non_cancer")
+  )
+
+  death <- as.data.table(clinical_history_icd)[
+    !is.na(eid) & !is.na(coding) & !is.na(age)
+  ]
+  death[, `:=`(
+    eid = as.character(eid),
+    coding = as.character(coding),
+    death_age = suppressWarnings(as.numeric(age))
+  )]
+  death <- death[eid %in% all_eids & coding == "DEATH" & !is.na(death_age)]
+  if (nrow(death) > 0L) {
+    death <- death[, .(death_age = min(death_age)), by = eid]
+  } else {
+    death <- data.table(eid = character(), death_age = numeric())
+  }
+
+  sex <- as.data.table(demographics)[
+    !is.na(eid) & !is.na(coding) & !is.na(code)
+  ]
+  sex[, `:=`(eid = as.character(eid), coding = as.character(coding))]
+  sex <- sex[
+    eid %in% all_eids & coding == SEX_CODING,
+    .(sex = as.character(code)[1L]), by = eid
+  ]
+  sex[!sex %in% c(FEMALE_CODE, MALE_CODE), sex := "Unknown"]
+
+  base <- merge(split_assignments, sex, by = "eid", all.x = TRUE)
+  base[is.na(sex), sex := "Unknown"]
+  base <- merge(base, death, by = "eid", all.x = TRUE)
+
+  ages <- seq(HEALTHY_AGE_MIN, HEALTHY_AGE_MAX, by = HEALTHY_AGE_STEP)
+  definitions <- list(
+    icd_only = icd_first,
+    icd_plus_self_reported = icd_sr_first
+  )
+
+  # Explicit Cartesian expansion (works across data.table versions).
+  detail_list <- lapply(names(definitions), function(definition_name) {
+    x <- merge(base, definitions[[definition_name]], by = "eid", all.x = TRUE)
+    x <- x[rep(seq_len(.N), each = length(ages))]
+    x[, index_age := rep(ages, times = nrow(base))]
+    x[, definition := definition_name]
+    x[, eligible := is.na(death_age) | death_age >= index_age]
+    x[, healthy := eligible &
+      (is.na(first_diagnosis_age) | first_diagnosis_age > index_age)]
+    x[, age_bin := sprintf("%d-%d", index_age, index_age + HEALTHY_AGE_STEP - 1L)]
+    x
+  })
+  healthy_detail <- rbindlist(detail_list, use.names = TRUE, fill = TRUE)
+
+  summarise_healthy <- function(dt, group_cols, split_label = NULL, sex_label = NULL) {
+    out <- dt[, .(
+      n_participants = uniqueN(eid),
+      n_eligible = uniqueN(eid[eligible]),
+      n_healthy = uniqueN(eid[healthy])
+    ), by = group_cols]
+    if (!is.null(split_label)) out[, split := split_label]
+    if (!is.null(sex_label)) out[, sex := sex_label]
+    out[, healthy_percent := fifelse(
+      n_eligible > 0L, 100 * n_healthy / n_eligible, NA_real_
+    )]
+    out
+  }
+
+  summary <- rbindlist(list(
+    summarise_healthy(healthy_detail,
+                      c("definition", "index_age", "age_bin", "split", "sex")),
+    summarise_healthy(healthy_detail,
+                      c("definition", "index_age", "age_bin", "split"),
+                      sex_label = "All"),
+    summarise_healthy(healthy_detail,
+                      c("definition", "index_age", "age_bin", "sex"),
+                      split_label = "all"),
+    summarise_healthy(healthy_detail,
+                      c("definition", "index_age", "age_bin"),
+                      split_label = "all", sex_label = "All")
+  ), use.names = TRUE, fill = TRUE)
+  setcolorder(summary, c(
+    "definition", "index_age", "age_bin", "split", "sex",
+    "n_participants", "n_eligible", "n_healthy", "healthy_percent"
+  ))
+  setorder(summary, definition, index_age, split, sex)
+
+  detail_at_age <- healthy_detail[index_age == HEALTHY_DETAIL_AGE, .(
+    eid, split, sex, definition, index_age, first_diagnosis_age,
+    death_age, eligible, healthy
+  )]
+  setorder(detail_at_age, definition, split, eid)
+
+  fwrite(summary, file.path(out_base, "healthy_participant_summary.csv"))
+  fwrite(detail_at_age, file.path(
+    out_base, paste0("healthy_participants_at_age_", HEALTHY_DETAIL_AGE, ".csv")
+  ))
+  writeLines(c(
+    "Healthy-participant definition",
+    "==============================",
+    "Eligible: no recorded death before the index age.",
+    "Healthy: eligible and no qualifying diagnosis recorded on or before the index age.",
+    "icd_only includes ICD-10 and ICD-9 diagnoses.",
+    "icd_plus_self_reported additionally includes self-reported cancer and non-cancer diagnoses.",
+    "Absence of a recorded diagnosis does not prove absence of disease; this is an operational data definition.",
+    paste0("Index ages: ", paste(ages, collapse = ", "), "."),
+    paste0("Participant-level detail is saved at age ", HEALTHY_DETAIL_AGE, ".")
+  ), file.path(out_base, "healthy_definition.txt"))
+  cat("Written healthy participant definition, summary, and age-",
+      HEALTHY_DETAIL_AGE, " detail reports.\n", sep = "")
+}
+
+make_healthy_reports()
+
+# --- Age/split distribution verification -------------------------------------
+make_age_split_reports <- function() {
+  cat("Verifying age distributions across splits...\n")
+
+  first_icd_age <- clinical_cohort[
+    !is.na(age_numeric),
+    .(first_icd_age = min(age_numeric)), by = .(eid = as.character(eid))
+  ]
+
+  sex_lookup <- as.data.table(demographics)[
+    !is.na(eid) & !is.na(coding) & !is.na(code)
+  ]
+  sex_lookup[, `:=`(eid = as.character(eid), coding = as.character(coding))]
+  sex_lookup <- sex_lookup[
+    eid %in% all_eids & coding == SEX_CODING,
+    .(sex = as.character(code)[1L]), by = eid
+  ]
+  sex_lookup[!sex %in% c(FEMALE_CODE, MALE_CODE), sex := "Unknown"]
+
+  ages <- merge(split_assignments, first_icd_age, by = "eid", all.x = TRUE)
+  ages <- merge(ages, sex_lookup, by = "eid", all.x = TRUE)
+  ages[is.na(sex), sex := "Unknown"]
+  if (ages[, anyNA(first_icd_age)]) {
+    stop("Shared cohort contains participants without a valid first ICD age")
+  }
+
+  full_ages <- copy(ages)
+  full_ages[, split := "full"]
+  report_ages <- rbind(ages, full_ages, use.names = TRUE)
+
+  age_summary <- report_ages[, .(
+    n_participants = uniqueN(eid),
+    mean_age = mean(first_icd_age),
+    sd_age = sd(first_icd_age),
+    median_age = median(first_icd_age),
+    q1_age = as.numeric(quantile(first_icd_age, 0.25)),
+    q3_age = as.numeric(quantile(first_icd_age, 0.75)),
+    min_age = min(first_icd_age),
+    max_age = max(first_icd_age)
+  ), by = .(split, sex)]
+  all_sex <- report_ages[, .(
+    n_participants = uniqueN(eid),
+    mean_age = mean(first_icd_age),
+    sd_age = sd(first_icd_age),
+    median_age = median(first_icd_age),
+    q1_age = as.numeric(quantile(first_icd_age, 0.25)),
+    q3_age = as.numeric(quantile(first_icd_age, 0.75)),
+    min_age = min(first_icd_age),
+    max_age = max(first_icd_age)
+  ), by = split]
+  all_sex[, sex := "All"]
+  age_summary <- rbind(age_summary, all_sex, use.names = TRUE, fill = TRUE)
+  setcolorder(age_summary, c(
+    "split", "sex", "n_participants", "mean_age", "sd_age", "median_age",
+    "q1_age", "q3_age", "min_age", "max_age"
+  ))
+  setorder(age_summary, split, sex)
+
+  bin_min <- floor(min(ages$first_icd_age) / 5) * 5
+  bin_max <- ceiling(max(ages$first_icd_age) / 5) * 5 + 5
+  breaks <- seq(bin_min, bin_max, by = 5)
+  report_ages[, age_bin := cut(
+    first_icd_age, breaks = breaks, right = FALSE, include.lowest = TRUE
+  )]
+  age_bins <- report_ages[, .(n_participants = uniqueN(eid)),
+                           by = .(split, sex, age_bin)]
+  age_bins[, proportion := n_participants / sum(n_participants),
+           by = .(split, sex)]
+  all_sex_bins <- report_ages[, .(n_participants = uniqueN(eid)),
+                              by = .(split, age_bin)]
+  all_sex_bins[, `:=`(
+    sex = "All",
+    proportion = n_participants / sum(n_participants)
+  ), by = split]
+  age_bins <- rbind(age_bins, all_sex_bins, use.names = TRUE, fill = TRUE)
+  setorder(age_bins, split, sex, age_bin)
+
+  split_pairs <- list(c("train", "val"), c("train", "test"), c("val", "test"))
+  test_rows <- lapply(split_pairs, function(pair) {
+    x <- ages[split == pair[1L], first_icd_age]
+    y <- ages[split == pair[2L], first_icd_age]
+    ks <- suppressWarnings(ks.test(x, y, exact = FALSE))
+    data.table(
+      split_1 = pair[1L],
+      split_2 = pair[2L],
+      n_1 = length(x),
+      n_2 = length(y),
+      mean_difference_years = mean(x) - mean(y),
+      median_difference_years = median(x) - median(y),
+      ks_statistic = unname(ks$statistic),
+      ks_p_value = ks$p.value
+    )
+  })
+  age_tests <- rbindlist(test_rows)
+
+  # Large cohorts make tiny, unimportant differences statistically significant.
+  # Flag practical differences using effect-size thresholds as well as reporting
+  # the unadjusted KS p-value.
+  age_tests[, practical_warning :=
+    abs(mean_difference_years) > 1 | abs(median_difference_years) > 1 |
+    ks_statistic > 0.05]
+  verification_status <- if (any(age_tests$practical_warning)) "WARNING" else "PASS"
+
+  fwrite(age_summary, file.path(out_base, "age_split_summary.csv"))
+  fwrite(age_bins, file.path(out_base, "age_split_5year_bins.csv"))
+  fwrite(age_tests, file.path(out_base, "age_split_pairwise_tests.csv"))
+
+  png(file.path(out_base, "age_split_distribution.png"),
+      width = 1400, height = 900, res = 150)
+  plot_data <- age_bins[sex == "All"]
+  split_order <- c("full", "train", "val", "test")
+  colours <- c(full = "black", train = "#0072B2", val = "#E69F00", test = "#009E73")
+  mids <- seq_along(levels(plot_data$age_bin))
+  plot(mids, rep(0, length(mids)), type = "n", ylim = c(0, max(plot_data$proportion) * 1.1),
+       xaxt = "n", xlab = "Age at first recorded ICD diagnosis (5-year bins)",
+       ylab = "Proportion of participants", main = "Age distribution by data split")
+  axis(1, at = mids, labels = levels(plot_data$age_bin), las = 2, cex.axis = 0.8)
+  for (s in split_order) {
+    d <- plot_data[split == s]
+    values <- d$proportion[match(levels(plot_data$age_bin), as.character(d$age_bin))]
+    values[is.na(values)] <- 0
+    lines(mids, values, type = "o", col = colours[[s]], lwd = 2, pch = 16)
+  }
+  legend("topright", legend = split_order, col = colours[split_order],
+         lwd = 2, pch = 16, bty = "n")
+  dev.off()
+
+  writeLines(c(
+    paste0("Age/split distribution verification: ", verification_status),
+    "=================================================",
+    "Age measure: age at first valid ICD-9 or ICD-10 diagnosis.",
+    "Compared splits: train vs validation, train vs test, validation vs test.",
+    "Practical warning if absolute mean or median difference exceeds 1 year,",
+    "or the two-sample Kolmogorov-Smirnov statistic exceeds 0.05.",
+    "KS p-values are supplied but are not used alone because very large samples",
+    "can make negligible distribution differences statistically significant.",
+    paste0("Result: ", verification_status),
+    if (verification_status == "WARNING")
+      "Review age_split_pairwise_tests.csv before training." else
+      "No practically important split difference was detected."
+  ), file.path(out_base, "age_split_verification.txt"))
+
+  cat("Written age/split summaries, five-year bins, tests, plot, and verification.\n")
+}
+
+make_age_split_reports()
+
 # --- Preprocessing function --------------------------------------------------
 preprocess_config <- function(cfg_name, sources_list, out_dir,
                                train_eids, val_eids, test_eids) {
@@ -151,8 +443,25 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
 
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
+  flow_rows <- list()
+  add_flow <- function(stage, before, after, reason) {
+    flow_rows[[length(flow_rows) + 1L]] <<- data.table(
+      configuration = cfg_name,
+      stage_order = length(flow_rows) + 1L,
+      stage = stage,
+      removal_reason = reason,
+      input_participants = uniqueN(before$eid),
+      output_participants = uniqueN(after$eid),
+      participants_removed = uniqueN(before$eid) - uniqueN(after$eid),
+      input_events = nrow(before),
+      output_events = nrow(after),
+      events_removed = nrow(before) - nrow(after)
+    )
+  }
+
   # -- Combine and clean -------------------------------------------------------
   dat <- rbindlist(sources_list, use.names = TRUE, fill = TRUE)
+  add_flow("combined_sources", dat, dat, "No filtering; raw combined input")
 
   required_cols <- c("eid", "coding", "code", "age")
   missing_cols  <- setdiff(required_cols, names(dat))
@@ -161,16 +470,24 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
 
   if (!"chapter" %in% names(dat)) dat[, chapter := NA_character_]
 
+  before <- copy(dat)
   dat <- dat[!is.na(eid) & !is.na(coding) & !is.na(code) & !is.na(age)]
+  add_flow("complete_required_fields", before, dat,
+           "Missing eid, coding, code, or age")
 
   dat[, eid      := as.character(eid)]
   dat[, coding   := as.character(coding)]
   dat[, code_raw := as.character(code)]
   dat[, age_years := suppressWarnings(as.numeric(age))]
+  before <- copy(dat)
   dat <- dat[!is.na(age_years)]
+  add_flow("numeric_age", before, dat, "Age could not be converted to numeric")
 
   # Enforce the shared clinical-ICD cohort for every experiment.
+  before <- copy(dat)
   dat <- dat[eid %in% all_eids]
+  add_flow("shared_clinical_cohort", before, dat,
+           "Participant not in eligible clinical ICD cohort")
 
   dat[, age_days := as.integer(round(age_years * 365.25))]
   dat[, age_days := pmax(0L, age_days)]
@@ -245,7 +562,9 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
   )
   dat[is_sex == TRUE & code_raw == FEMALE_CODE, token_id := 2L]
   dat[is_sex == TRUE & code_raw == MALE_CODE,   token_id := 3L]
+  before <- copy(dat)
   dat <- dat[!is.na(token_id)]
+  add_flow("token_assignment", before, dat, "No model token could be assigned")
   dat[, token_id    := as.integer(token_id)]
   dat[, bin_token_id := token_id - 1L]
   cat("Rows after token assignment:", nrow(dat), "\n")
@@ -289,6 +608,32 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
     "Patients  — train: %d | val: %d | test: %d\n",
     uniqueN(train_dat$eid), uniqueN(val_dat$eid), uniqueN(test_dat$eid)
   ))
+
+  final_flow <- rbindlist(list(
+    rbindlist(flow_rows, use.names = TRUE, fill = TRUE),
+    data.table(
+      configuration = cfg_name,
+      stage_order = length(flow_rows) + 1:3,
+      stage = c("final_train", "final_validation", "final_test"),
+      removal_reason = "Shared split assignment",
+      input_participants = uniqueN(dat$eid),
+      output_participants = c(
+        uniqueN(train_dat$eid), uniqueN(val_dat$eid), uniqueN(test_dat$eid)
+      ),
+      participants_removed = NA_integer_,
+      input_events = nrow(dat),
+      output_events = c(nrow(train_dat), nrow(val_dat), nrow(test_dat)),
+      events_removed = NA_integer_
+    )
+  ), use.names = TRUE, fill = TRUE)
+  final_flow[, participant_retention_percent := fifelse(
+    input_participants > 0L, 100 * output_participants / input_participants, NA_real_
+  )]
+  final_flow[, event_retention_percent := fifelse(
+    input_events > 0L, 100 * output_events / input_events, NA_real_
+  )]
+  fwrite(final_flow, file.path(out_dir, "participant_flow.csv"))
+  cat("Written participant_flow.csv\n")
   cat(sprintf(
     "Events    — train: %d | val: %d | test: %d\n",
     nrow(train_dat), nrow(val_dat), nrow(test_dat)
@@ -359,6 +704,11 @@ for (cfg_name in names(configs)) {
     test_eids   = test_eids
   )
 }
+
+flow_files <- file.path(out_base, names(configs), "participant_flow.csv")
+participant_flow_all <- rbindlist(lapply(flow_files, fread), use.names = TRUE, fill = TRUE)
+fwrite(participant_flow_all, file.path(out_base, "participant_flow_all.csv"))
+cat("Written combined participant_flow_all.csv\n")
 
 cat("All configurations complete.\n")
 cat("Output root:", out_base, "\n")

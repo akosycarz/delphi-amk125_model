@@ -15,13 +15,19 @@ conda activate delphi
 DELPHI_DIR="/rds/general/project/hda_24-25/live/amk125_thesis/Delphi"
 cd "$DELPHI_DIR"
 
-# Run evaluation for each configuration using its dryrun checkpoint.
+# Evaluate the five cumulative configurations using their dry-run checkpoints:
+#   1. Clinical ICD
+#   2. Clinical ICD + demographics
+#   3. Clinical ICD + demographics + UKB bulk
+#   4. Clinical ICD + demographics + UKB bulk + blood biochemistry
+#   5. All previous inputs + self-reported diagnoses
 # --dataset_subset_size 500 keeps the job short; remove for full evaluation.
 for CFG in \
-    clinical \
-    clinical_demographics \
-    clinical_demographics_ukb \
-    clinical_demographics_ukb_biochem
+    clinical_icd \
+    clinical_demographics_icd \
+    clinical_demographics_ukb_icd \
+    clinical_demographics_ukb_biochem_icd \
+    clinical_demographics_ukb_biochem_icd_self_reported
 do
     DATASET="ukb_amk125_${CFG}"
     CKPT="dryrun_${CFG}/ckpt.pt"

@@ -2,9 +2,16 @@
 # run_pipeline_dryrun.sh
 #
 # Submits the full dryrun pipeline as three chained PBS jobs:
-#   1. Preprocessing  (R)    — builds train/val/test.bin for all 4 configurations
-#   2. Dryrun training (GPU) — trains a tiny model on each configuration
-#   3. Dryrun evaluation (GPU) — runs run_evaluation.py on each checkpoint
+#   1. Preprocessing (R) — builds train/val/test.bin for five cumulative datasets
+#   2. Dry-run training (GPU) — trains a tiny model for each dataset
+#   3. Dry-run evaluation (GPU) — evaluates all five checkpoints
+#
+# The five cumulative configurations are:
+#   1. Clinical ICD
+#   2. Clinical ICD + demographics
+#   3. Clinical ICD + demographics + UKB bulk
+#   4. Clinical ICD + demographics + UKB bulk + blood biochemistry
+#   5. All previous inputs + self-reported diagnoses
 #
 # Each job only starts if the previous one succeeded (afterok dependency).
 #
@@ -26,7 +33,7 @@ LOG_DIR="/rds/general/project/hda_24-25/live/amk125_thesis/logs"
 mkdir -p "$LOG_DIR"
 
 echo "======================================================"
-echo "  Delphi dryrun pipeline"
+echo "  Delphi five-model dry-run pipeline"
 echo "  $(date)"
 echo "======================================================"
 
@@ -58,9 +65,9 @@ echo "======================================================"
 echo "  All jobs submitted."
 echo ""
 echo "  Pipeline:"
-echo "    Preprocess  → $PREPROCESS_JOB"
-echo "    Train       → $TRAIN_JOB       (starts after preprocess)"
-echo "    Evaluate    → $EVAL_JOB        (starts after train)"
+echo "    Preprocess five datasets  → $PREPROCESS_JOB"
+echo "    Train five small models   → $TRAIN_JOB  (starts after preprocess)"
+echo "    Evaluate five checkpoints → $EVAL_JOB   (starts after train)"
 echo ""
 echo "  Monitor with:  qstat -u $USER"
 echo "  Logs in:       $LOG_DIR"
