@@ -2,19 +2,13 @@
 # Delphi Preprocessing: Build Delphi binary datasets from individual source files
 #
 # Reads each source RDS (output of 9-adding_age.R) individually and builds
-# four data configurations, each in its own output folder:
+# five cumulative data configurations, each in its own output folder:
 #
-#   ukb_amk125_clinical
-#     clinical_history_icd + self_reported_cancer + self_reported_non_cancer
-#
-#   ukb_amk125_clinical_demographics
-#     above + demographics (sex/ethnicity)
-#
-#   ukb_amk125_clinical_demographics_ukb
-#     above + ukb_bulk (lifestyle and assessment centre variables)
-#
-#   ukb_amk125_clinical_demographics_ukb_biochem
-#     above + blood_biochemistry (all sources)
+#   ukb_amk125_clinical_icd
+#   ukb_amk125_clinical_demographics_icd
+#   ukb_amk125_clinical_demographics_ukb_icd
+#   ukb_amk125_clinical_demographics_ukb_biochem_icd
+#   ukb_amk125_clinical_demographics_ukb_biochem_icd_self_reported
 #
 # Each folder contains:
 #   train.bin / val.bin / test.bin      (60 / 20 / 20 patient split)
@@ -25,8 +19,9 @@
 #   vocab_meta.rds
 #   config_values.py                    (read by Delphi training configs)
 #
-# The patient split is computed once from the union of all patients and then
-# applied consistently across all configurations, so models are comparable.
+# The cohort and split are anchored to patients with clinical ICD history and
+# applied consistently across all configurations. Extra sources therefore
+# cannot add participants or move them between splits.
 #
 # Important Delphi detail:
 #   utils.py adds +1 to token IDs inside get_batch().
@@ -87,47 +82,33 @@ cat("All source files loaded.\n\n")
 # --- Define configurations ---------------------------------------------------
 # Each entry is a named list of data.tables to combine for that configuration.
 configs <- list(
-
-  ukb_amk125_clinical = list(
-    clinical_history_icd,
-    self_reported_cancer,
-    self_reported_noncancer
+  ukb_amk125_clinical_icd = list(clinical_history_icd),
+  ukb_amk125_clinical_demographics_icd = list(
+    clinical_history_icd, demographics
   ),
-
-  ukb_amk125_clinical_demographics = list(
-    clinical_history_icd,
-    self_reported_cancer,
-    self_reported_noncancer,
-    demographics
+  ukb_amk125_clinical_demographics_ukb_icd = list(
+    clinical_history_icd, demographics, ukb_bulk
   ),
-
-  ukb_amk125_clinical_demographics_ukb = list(
-    clinical_history_icd,
-    self_reported_cancer,
-    self_reported_noncancer,
-    demographics,
-    ukb_bulk
+  ukb_amk125_clinical_demographics_ukb_biochem_icd = list(
+    clinical_history_icd, demographics, ukb_bulk, blood_biochemistry
   ),
-
-  ukb_amk125_clinical_demographics_ukb_biochem = list(
-    clinical_history_icd,
-    self_reported_cancer,
-    self_reported_noncancer,
-    demographics,
-    ukb_bulk,
-    blood_biochemistry
+  ukb_amk125_clinical_demographics_ukb_biochem_icd_self_reported = list(
+    clinical_history_icd, demographics, ukb_bulk, blood_biochemistry,
+    self_reported_cancer, self_reported_noncancer
   )
 )
 
 # --- Compute shared 60/20/20 patient split -----------------------------------
-# Use the union of all patients across every configuration so that the same
-# patient always falls in the same split regardless of which config is run.
-all_eids <- unique(as.character(rbindlist(
-  lapply(unlist(configs, recursive = FALSE), function(dt) {
-    as.data.table(dt)[!is.na(eid), .(eid = as.character(eid))]
-  }),
-  use.names = FALSE
-)$eid))
+# Clinical ICD history defines the comparison cohort. This prevents optional
+# sources (especially self-report) from changing the evaluated population.
+clinical_cohort <- as.data.table(clinical_history_icd)[
+  !is.na(eid) & !is.na(coding) & !is.na(code) & !is.na(age)
+]
+clinical_cohort[, age_numeric := suppressWarnings(as.numeric(age))]
+all_eids <- sort(unique(as.character(
+  clinical_cohort[!is.na(age_numeric), eid]
+)))
+if (length(all_eids) == 0L) stop("No eligible clinical ICD participants found")
 
 n_total <- length(all_eids)
 n_val   <- as.integer(round(VAL_FRAC  * n_total))
@@ -137,6 +118,20 @@ shuffled   <- sample(all_eids)
 val_eids   <- shuffled[seq_len(n_val)]
 test_eids  <- shuffled[n_val + seq_len(n_test)]
 train_eids <- shuffled[(n_val + n_test + 1L):n_total]
+
+split_assignments <- data.table(
+  eid = c(train_eids, val_eids, test_eids),
+  split = c(
+    rep("train", length(train_eids)),
+    rep("val", length(val_eids)),
+    rep("test", length(test_eids))
+  )
+)
+setorder(split_assignments, eid)
+dir.create(out_base, recursive = TRUE, showWarnings = FALSE)
+fwrite(split_assignments, file.path(out_base, "split_assignments.csv"))
+cat("Written shared split assignments:",
+    file.path(out_base, "split_assignments.csv"), "\n")
 
 cat(sprintf(
   "Global patient split: %d train (%.0f%%) | %d val (%.0f%%) | %d test (%.0f%%)\n\n",
@@ -173,6 +168,9 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
   dat[, code_raw := as.character(code)]
   dat[, age_years := suppressWarnings(as.numeric(age))]
   dat <- dat[!is.na(age_years)]
+
+  # Enforce the shared clinical-ICD cohort for every experiment.
+  dat <- dat[eid %in% all_eids]
 
   dat[, age_days := as.integer(round(age_years * 365.25))]
   dat[, age_days := pmax(0L, age_days)]

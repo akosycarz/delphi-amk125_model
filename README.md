@@ -16,6 +16,15 @@ This project builds on **Delphi (Delphi-2M)**, developed by the Gerstung Lab:
 - `scripts/` - R scripts used to extract, recode, and preprocess UK Biobank data into the format Delphi expects.
 - `shell_scripts/` - HPC (PBS/bash) job submission scripts used to run the preprocessing and training pipeline on Imperial College's HPC cluster.
 
+## Incremental comparison matrix
+
+`scripts/delphi_preprocess.R` creates five cumulative datasets: clinical ICD;
++ demographics; + UKB bulk; + blood biochemistry; and finally + self-reported
+diagnoses. All datasets use the same clinical ICD cohort and the same seeded
+60/20/20 participant split. The exact experiment
+matrix is recorded in `Delphi/config/experiment_matrix.csv`, and preprocessing
+writes `data/split_assignments.csv` so split membership can be audited.
+
 ## No data included
 
 No UK Biobank data, trained model checkpoints, or derived result files are included in this repository. UK Biobank data is only available to researchers upon application (https://www.ukbiobank.ac.uk/), and per Delphi's own licensing, trained weights are not freely redistributable. To run this pipeline yourself you will need your own approved UK Biobank data extract.

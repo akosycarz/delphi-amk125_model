@@ -1,0 +1,6 @@
+experiment,dataset,self_reported,demographics,ukb_bulk,biochemistry
+clinical_icd,ukb_amk125_clinical_icd,no,no,no,no
+clinical_demographics_icd,ukb_amk125_clinical_demographics_icd,no,yes,no,no
+clinical_demographics_ukb_icd,ukb_amk125_clinical_demographics_ukb_icd,no,yes,yes,no
+clinical_demographics_ukb_biochem_icd,ukb_amk125_clinical_demographics_ukb_biochem_icd,no,yes,yes,yes
+clinical_demographics_ukb_biochem_icd_self_reported,ukb_amk125_clinical_demographics_ukb_biochem_icd_self_reported,yes,yes,yes,yes

@@ -13,12 +13,13 @@ conda activate delphi
 
 cd /rds/general/project/hda_24-25/live/amk125_thesis/Delphi/
 
-# Run dryrun for each configuration so all four data folders are exercised
+# Run the five cumulative data configurations.
 for CONFIG in \
-    dryrun_clinical \
-    dryrun_clinical_demographics \
-    dryrun_clinical_demographics_ukb \
-    dryrun_clinical_demographics_ukb_biochem
+    dryrun_clinical_icd \
+    dryrun_clinical_demographics_icd \
+    dryrun_clinical_demographics_ukb_icd \
+    dryrun_clinical_demographics_ukb_biochem_icd \
+    dryrun_clinical_demographics_ukb_biochem_icd_self_reported
 do
     echo "--- Training config: $CONFIG at $(date) ---"
     python train.py config/${CONFIG}.py \
