@@ -9,8 +9,8 @@
 library(data.table)
 
 # --- Paths ------------------------------------------------------------------
-input_path  <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources/clinical_history_icd.rds"
-output_path <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources/clinical_history_icd.rds"
+input_path <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sources/clinical_history_icd.rds"
+output_path <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sources/clinical_history_icd.rds"
 
 # --- Load data --------------------------------------------------------------
 cat("Loading data...\n")

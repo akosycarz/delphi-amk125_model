@@ -28,8 +28,8 @@ library(data.table)
 
 # --- Paths -------------------------------------------------------------------
 base_dir         <- "/rds/general/project/hda_24-25/live/amk125_thesis"
-age_dir          <- file.path(base_dir, "outputs", "outputs_with_age")
-delphi_data_dir  <- file.path(base_dir, "Delphi", "data")
+age_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/outputs_with_age"
+delphi_data_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/Delphi/data"
 
 val_frac     <- 0.05
 n_value_bins <- 4L

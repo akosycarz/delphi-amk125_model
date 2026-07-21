@@ -8,11 +8,11 @@
 
 library(data.table)
 
-tmp_dir <- "/rds/general/project/hda_24-25/live/amk125_thesis/tmp"
+tmp_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/tmp"
 dir.create(tmp_dir, showWarnings = FALSE, recursive = TRUE)
 Sys.setenv(TMPDIR = tmp_dir)
 
-out_dir <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources"
+out_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sources"
 
 cancer_path           <- file.path(out_dir, "seq_cancer_self_reported.rds")
 noncancer_path        <- file.path(out_dir, "seq_noncancer_self_reported.rds")

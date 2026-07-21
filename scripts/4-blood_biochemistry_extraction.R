@@ -1,7 +1,7 @@
 library(data.table)
 
 in_path  <- "/rds/general/project/hda_24-25/live/ukb_general_data/data_internal.rds"
-out_dir  <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources"
+out_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sources"
 out_path <- file.path(out_dir, "blood_biochemistry.rds")
 
 # Read the wide data.frame (eid as row names, coding as column names)

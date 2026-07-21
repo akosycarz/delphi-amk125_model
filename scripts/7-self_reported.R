@@ -8,8 +8,8 @@ library(tidyr)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 cleaning_path    <- "/rds/general/project/hda_24-25/live/amk125_thesis/General/extraction_and_recoding/outputs/ukb_cleaning.rds"
-out_cancer_path  <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources/seq_cancer_self_reported.rds"
-out_noncancer_path <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources/seq_noncancer_self_reported.rds"
+out_cancer_path <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sources/seq_cancer_self_reported.rds"
+out_noncancer_path <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sources/seq_noncancer_self_reported.rds"
 
 # ── Load ──────────────────────────────────────────────────────────────────────
 cat("Loading ukb_cleaning...\n")

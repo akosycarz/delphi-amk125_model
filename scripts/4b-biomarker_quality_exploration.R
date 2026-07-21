@@ -14,7 +14,7 @@ library(gridExtra)
 library(scales)
 
 # ---- Output directory ----
-out_dir <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources/biomarker_outputs"
+out_dir <- "/rds/general/user/amk125/home/delphi-amk125_model/final_outputs/biomarker_outputs"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 # ---- Load data ----

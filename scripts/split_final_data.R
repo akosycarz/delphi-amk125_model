@@ -2,8 +2,8 @@ library(data.table)
 
 set.seed(42L)
 
-input_path <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/outputs_with_age/final.rds"
-output_dir <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/outputs_with_age/splits"
+input_path <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/outputs_with_age/final.rds"
+output_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/outputs_with_age/splits"
 
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 

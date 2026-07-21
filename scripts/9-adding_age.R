@@ -3,9 +3,9 @@
 
 library(data.table)
 
-tmp_dir <- "/rds/general/project/hda_24-25/live/amk125_thesis/tmp"
-input_dir <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources"
-output_dir <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/outputs_with_age"
+tmp_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/tmp"
+input_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sources"
+output_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/outputs_with_age"
 
 blood_biochemistry_path <- file.path(input_dir, "blood_biochemistry.rds")
 clinical_history_icd_path <- file.path(input_dir, "clinical_history_icd.rds")

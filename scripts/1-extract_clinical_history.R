@@ -1,11 +1,11 @@
 library(data.table)
 library(lubridate)
 
-tmp_dir <- "/rds/general/project/hda_24-25/live/amk125_thesis/tmp"
+tmp_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/tmp"
 dir.create(tmp_dir, showWarnings = FALSE, recursive = TRUE)
 Sys.setenv(TMPDIR = tmp_dir)
 base_path <- "/rds/general/project/hda_24-25/live/TDS/General/Data/"
-out_path  <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources/"
+out_path <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sources/"
 dir.create(out_path, showWarnings = FALSE, recursive = TRUE)
 
 # Helper: keep first occurrence per (eid, code, coding)

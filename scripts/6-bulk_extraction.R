@@ -1,7 +1,7 @@
 library(data.table)
 
 in_path  <- "/rds/general/project/hda_24-25/live/amk125_thesis/General/extraction_and_recoding/outputs/ukb_cleaning.rds"
-out_dir  <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources"
+out_dir <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sources"
 out_path <- file.path(out_dir, "ukb_bulk.rds")   # rename if you like
 
 # --- columns to EXCLUDE ---------------------------------------------------

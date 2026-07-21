@@ -8,7 +8,7 @@ library(lubridate)
 #  Paths
 clinical_path <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/clinical_history_icd.rds"
 cleaning_path <- "/rds/general/project/hda_24-25/live/amk125_thesis/General/extraction_and_recoding/outputs/ukb_cleaning.rds"
-out_path      <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sequence_ukb.rds"
+out_path <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sequence_ukb.rds"
 #  1. Clinical history (ICD)
 cat("Loading clinical history...\n")
 clinical <- readRDS(clinical_path)  # cols: eid, code, coding, date

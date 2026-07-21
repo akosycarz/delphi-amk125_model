@@ -11,7 +11,7 @@ library(stringr)
 
 # ---- 0. Load input data ------------------------------------
 
-in_file <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources/clinical_history_icd.rds"
+in_file <- "/rds/general/ephemeral/user/amk125/ephemeral/amk125_thesis/outputs/sources/clinical_history_icd.rds"
 
 if (!file.exists(in_file)) {
   stop("Input file not found: ", in_file)
@@ -791,7 +791,7 @@ make_chapter_png <- function(df, out_file,
 
 # ---- 7. Save PNGs ------------------------------------------
 
-out_dir <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/sources/"
+out_dir <- "/rds/general/user/amk125/home/delphi-amk125_model/final_outputs/time_window/"
 
 if (!dir.exists(out_dir)) {
   dir.create(out_dir, recursive = TRUE)
