@@ -1,8 +1,7 @@
-import os
 import time
 
-if "dataset" not in globals() or "out_dir" not in globals():
-    raise RuntimeError("Set dataset and out_dir before loading _amk125_common.py")
+dataset = "ukb_amk125_clinical_demographics_ukb_biochem_icd_self_reported"
+out_dir = "models/ukb_amk125_clinical_demographics_ukb_biochem_icd_self_reported"
 
 eval_interval = 250
 eval_iters = 25
@@ -23,13 +22,6 @@ n_embd = 120
 dropout = 0.1
 weight_decay = 2e-1
 bias = False
-
-config_values_path = os.path.join("data", dataset, "config_values.py")
-if not os.path.exists(config_values_path):
-    raise FileNotFoundError(
-        f"Missing {config_values_path}. Run scripts/delphi_preprocess.R first."
-    )
-exec(open(config_values_path).read())
 
 learning_rate = 2e-3
 max_iters = 5000

@@ -87,7 +87,7 @@ ctx = nullcontext() if device_type == 'cpu' else torch.amp.autocast(device_type=
 torch.set_default_dtype(ptdtype)
 
 # poor man's data loader
-data_dir = os.path.join('data', dataset)
+data_dir = os.path.join(os.path.expanduser('~/delphi-amk125_model/data'), dataset)
 train_data = np.memmap(os.path.join(data_dir, 'train.bin'), dtype=np.uint32, mode='r').reshape(-1, 3)
 val_data = np.memmap(os.path.join(data_dir, 'val.bin'), dtype=np.uint32, mode='r').reshape(-1, 3)
 

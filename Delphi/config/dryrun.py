@@ -1,7 +1,9 @@
-import os
 import time
 
-out_dir = "dryrun_clinical"
+# Override these two values on the command line to test another dataset:
+#   --dataset=DATASET_DIRECTORY --out_dir=models/dryrun_NAME
+dataset = "ukb_amk125_clinical_icd"
+out_dir = "models/dryrun_clinical_icd"
 
 eval_interval = 20
 eval_iters = 5
@@ -10,9 +12,7 @@ always_save_checkpoint = False
 
 wandb_log = False
 wandb_project = "delphi"
-wandb_run_name = "dryrun_clinical_" + str(time.time())
-
-dataset = "ukb_amk125_clinical"
+wandb_run_name = "dryrun_" + str(time.time())
 
 batch_size = 16
 block_size = 64
@@ -24,14 +24,6 @@ n_embd = 64
 dropout = 0.1
 weight_decay = 2e-1
 bias = False
-
-config_values_path = os.path.join("data", dataset, "config_values.py")
-if not os.path.exists(config_values_path):
-    raise FileNotFoundError(
-        f"Missing {config_values_path}. "
-        "Run scripts/delphi_preprocess.R first."
-    )
-exec(open(config_values_path).read())
 
 learning_rate = 2e-3
 max_iters = 40
