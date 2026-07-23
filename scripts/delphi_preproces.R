@@ -42,7 +42,23 @@ set.seed(42L)
 
 # --- Paths -------------------------------------------------------------------
 sources_dir <- "/rds/general/project/hda_24-25/live/amk125_thesis/outputs/outputs_with_age"
-out_base    <- "/rds/general/project/hda_24-25/live/amk125_thesis/Delphi/data"
+out_base <- "/rds/general/user/amk125/home/delphi-amk125_model/data"
+
+dir.create(out_base, recursive = TRUE, showWarnings = TRUE)
+
+if (!dir.exists(out_base)) {
+  stop("Could not create output directory: ", out_base)
+}
+
+write_test <- tempfile(pattern = ".write_test_", tmpdir = out_base)
+
+if (!file.create(write_test)) {
+  stop("Output directory is not writable: ", out_base)
+}
+
+unlink(write_test)
+
+cat("Confirmed writable output directory:", out_base, "\n")
 
 # --- Global settings ---------------------------------------------------------
 TRAIN_FRAC <- 0.60
@@ -56,6 +72,7 @@ MALE_CODE   <- "Male"
 # Disease/code events: the code itself becomes part of the token (e.g. ICD10::E11).
 # Continuous numeric values are NOT binned for these codings.
 disease_codings <- c("ICD10", "self_reported_cancer", "self_reported_non_cancer")
+disease_codings <- c("ICD10", "ICD9")
 
 # Number of quantile bins for continuous measurements (e.g. albumin).
 n_value_bins <- 4L
@@ -153,7 +170,7 @@ cat(sprintf(
 # --- Healthy-participant reports ---------------------------------------------
 make_healthy_reports <- function() {
   cat("Creating healthy-participant reports...\n")
-
+  
   prepare_diagnoses <- function(dt, allowed_codings) {
     x <- as.data.table(dt)
     x <- x[!is.na(eid) & !is.na(coding) & !is.na(age)]
@@ -165,7 +182,7 @@ make_healthy_reports <- function() {
     x[eid %in% all_eids & coding %in% allowed_codings & !is.na(diagnosis_age),
       .(first_diagnosis_age = min(diagnosis_age)), by = eid]
   }
-
+  
   icd_first <- prepare_diagnoses(clinical_history_icd, c("ICD10", "ICD9"))
   all_diagnosis_sources <- rbindlist(
     list(clinical_history_icd, self_reported_cancer, self_reported_noncancer),
@@ -175,7 +192,7 @@ make_healthy_reports <- function() {
     all_diagnosis_sources,
     c("ICD10", "ICD9", "self_reported_cancer", "self_reported_non_cancer")
   )
-
+  
   death <- as.data.table(clinical_history_icd)[
     !is.na(eid) & !is.na(coding) & !is.na(age)
   ]
@@ -190,7 +207,7 @@ make_healthy_reports <- function() {
   } else {
     death <- data.table(eid = character(), death_age = numeric())
   }
-
+  
   sex <- as.data.table(demographics)[
     !is.na(eid) & !is.na(coding) & !is.na(code)
   ]
@@ -200,17 +217,17 @@ make_healthy_reports <- function() {
     .(sex = as.character(code)[1L]), by = eid
   ]
   sex[!sex %in% c(FEMALE_CODE, MALE_CODE), sex := "Unknown"]
-
+  
   base <- merge(split_assignments, sex, by = "eid", all.x = TRUE)
   base[is.na(sex), sex := "Unknown"]
   base <- merge(base, death, by = "eid", all.x = TRUE)
-
+  
   ages <- seq(HEALTHY_AGE_MIN, HEALTHY_AGE_MAX, by = HEALTHY_AGE_STEP)
   definitions <- list(
     icd_only = icd_first,
     icd_plus_self_reported = icd_sr_first
   )
-
+  
   # Explicit Cartesian expansion (works across data.table versions).
   detail_list <- lapply(names(definitions), function(definition_name) {
     x <- merge(base, definitions[[definition_name]], by = "eid", all.x = TRUE)
@@ -219,12 +236,12 @@ make_healthy_reports <- function() {
     x[, definition := definition_name]
     x[, eligible := is.na(death_age) | death_age >= index_age]
     x[, healthy := eligible &
-      (is.na(first_diagnosis_age) | first_diagnosis_age > index_age)]
+        (is.na(first_diagnosis_age) | first_diagnosis_age > index_age)]
     x[, age_bin := sprintf("%d-%d", index_age, index_age + HEALTHY_AGE_STEP - 1L)]
     x
   })
   healthy_detail <- rbindlist(detail_list, use.names = TRUE, fill = TRUE)
-
+  
   summarise_healthy <- function(dt, group_cols, split_label = NULL, sex_label = NULL) {
     out <- dt[, .(
       n_participants = uniqueN(eid),
@@ -238,7 +255,7 @@ make_healthy_reports <- function() {
     )]
     out
   }
-
+  
   summary <- rbindlist(list(
     summarise_healthy(healthy_detail,
                       c("definition", "index_age", "age_bin", "split", "sex")),
@@ -257,13 +274,13 @@ make_healthy_reports <- function() {
     "n_participants", "n_eligible", "n_healthy", "healthy_percent"
   ))
   setorder(summary, definition, index_age, split, sex)
-
+  
   detail_at_age <- healthy_detail[index_age == HEALTHY_DETAIL_AGE, .(
     eid, split, sex, definition, index_age, first_diagnosis_age,
     death_age, eligible, healthy
   )]
   setorder(detail_at_age, definition, split, eid)
-
+  
   fwrite(summary, file.path(out_base, "healthy_participant_summary.csv"))
   fwrite(detail_at_age, file.path(
     out_base, paste0("healthy_participants_at_age_", HEALTHY_DETAIL_AGE, ".csv")
@@ -288,12 +305,12 @@ make_healthy_reports()
 # --- Age/split distribution verification -------------------------------------
 make_age_split_reports <- function() {
   cat("Verifying age distributions across splits...\n")
-
+  
   first_icd_age <- clinical_cohort[
     !is.na(age_numeric),
     .(first_icd_age = min(age_numeric)), by = .(eid = as.character(eid))
   ]
-
+  
   sex_lookup <- as.data.table(demographics)[
     !is.na(eid) & !is.na(coding) & !is.na(code)
   ]
@@ -303,18 +320,18 @@ make_age_split_reports <- function() {
     .(sex = as.character(code)[1L]), by = eid
   ]
   sex_lookup[!sex %in% c(FEMALE_CODE, MALE_CODE), sex := "Unknown"]
-
+  
   ages <- merge(split_assignments, first_icd_age, by = "eid", all.x = TRUE)
   ages <- merge(ages, sex_lookup, by = "eid", all.x = TRUE)
   ages[is.na(sex), sex := "Unknown"]
   if (ages[, anyNA(first_icd_age)]) {
     stop("Shared cohort contains participants without a valid first ICD age")
   }
-
+  
   full_ages <- copy(ages)
   full_ages[, split := "full"]
   report_ages <- rbind(ages, full_ages, use.names = TRUE)
-
+  
   age_summary <- report_ages[, .(
     n_participants = uniqueN(eid),
     mean_age = mean(first_icd_age),
@@ -342,7 +359,7 @@ make_age_split_reports <- function() {
     "q1_age", "q3_age", "min_age", "max_age"
   ))
   setorder(age_summary, split, sex)
-
+  
   bin_min <- floor(min(ages$first_icd_age) / 5) * 5
   bin_max <- ceiling(max(ages$first_icd_age) / 5) * 5 + 5
   breaks <- seq(bin_min, bin_max, by = 5)
@@ -350,7 +367,7 @@ make_age_split_reports <- function() {
     first_icd_age, breaks = breaks, right = FALSE, include.lowest = TRUE
   )]
   age_bins <- report_ages[, .(n_participants = uniqueN(eid)),
-                           by = .(split, sex, age_bin)]
+                          by = .(split, sex, age_bin)]
   age_bins[, proportion := n_participants / sum(n_participants),
            by = .(split, sex)]
   all_sex_bins <- report_ages[, .(n_participants = uniqueN(eid)),
@@ -361,7 +378,7 @@ make_age_split_reports <- function() {
   ), by = split]
   age_bins <- rbind(age_bins, all_sex_bins, use.names = TRUE, fill = TRUE)
   setorder(age_bins, split, sex, age_bin)
-
+  
   split_pairs <- list(c("train", "val"), c("train", "test"), c("val", "test"))
   test_rows <- lapply(split_pairs, function(pair) {
     x <- ages[split == pair[1L], first_icd_age]
@@ -379,19 +396,19 @@ make_age_split_reports <- function() {
     )
   })
   age_tests <- rbindlist(test_rows)
-
+  
   # Large cohorts make tiny, unimportant differences statistically significant.
   # Flag practical differences using effect-size thresholds as well as reporting
   # the unadjusted KS p-value.
   age_tests[, practical_warning :=
-    abs(mean_difference_years) > 1 | abs(median_difference_years) > 1 |
-    ks_statistic > 0.05]
+              abs(mean_difference_years) > 1 | abs(median_difference_years) > 1 |
+              ks_statistic > 0.05]
   verification_status <- if (any(age_tests$practical_warning)) "WARNING" else "PASS"
-
+  
   fwrite(age_summary, file.path(out_base, "age_split_summary.csv"))
   fwrite(age_bins, file.path(out_base, "age_split_5year_bins.csv"))
   fwrite(age_tests, file.path(out_base, "age_split_pairwise_tests.csv"))
-
+  
   png(file.path(out_base, "age_split_distribution.png"),
       width = 1400, height = 900, res = 150)
   plot_data <- age_bins[sex == "All"]
@@ -411,7 +428,7 @@ make_age_split_reports <- function() {
   legend("topright", legend = split_order, col = colours[split_order],
          lwd = 2, pch = 16, bty = "n")
   dev.off()
-
+  
   writeLines(c(
     paste0("Age/split distribution verification: ", verification_status),
     "=================================================",
@@ -424,9 +441,9 @@ make_age_split_reports <- function() {
     paste0("Result: ", verification_status),
     if (verification_status == "WARNING")
       "Review age_split_pairwise_tests.csv before training." else
-      "No practically important split difference was detected."
+        "No practically important split difference was detected."
   ), file.path(out_base, "age_split_verification.txt"))
-
+  
   cat("Written age/split summaries, five-year bins, tests, plot, and verification.\n")
 }
 
@@ -434,15 +451,15 @@ make_age_split_reports()
 
 # --- Preprocessing function --------------------------------------------------
 preprocess_config <- function(cfg_name, sources_list, out_dir,
-                               train_eids, val_eids, test_eids) {
-
+                              train_eids, val_eids, test_eids) {
+  
   cat("=================================================================\n")
   cat("Configuration:", cfg_name, "\n")
   cat("Output:       ", out_dir, "\n")
   cat("=================================================================\n")
-
+  
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
-
+  
   flow_rows <- list()
   add_flow <- function(stage, before, after, reason) {
     flow_rows[[length(flow_rows) + 1L]] <<- data.table(
@@ -458,23 +475,23 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
       events_removed = nrow(before) - nrow(after)
     )
   }
-
+  
   # -- Combine and clean -------------------------------------------------------
   dat <- rbindlist(sources_list, use.names = TRUE, fill = TRUE)
   add_flow("combined_sources", dat, dat, "No filtering; raw combined input")
-
+  
   required_cols <- c("eid", "coding", "code", "age")
   missing_cols  <- setdiff(required_cols, names(dat))
   if (length(missing_cols) > 0L)
     stop(cfg_name, ": missing required columns: ", paste(missing_cols, collapse = ", "))
-
+  
   if (!"chapter" %in% names(dat)) dat[, chapter := NA_character_]
-
+  
   before <- copy(dat)
   dat <- dat[!is.na(eid) & !is.na(coding) & !is.na(code) & !is.na(age)]
   add_flow("complete_required_fields", before, dat,
            "Missing eid, coding, code, or age")
-
+  
   dat[, eid      := as.character(eid)]
   dat[, coding   := as.character(coding)]
   dat[, code_raw := as.character(code)]
@@ -482,24 +499,24 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
   before <- copy(dat)
   dat <- dat[!is.na(age_years)]
   add_flow("numeric_age", before, dat, "Age could not be converted to numeric")
-
+  
   # Enforce the shared clinical-ICD cohort for every experiment.
   before <- copy(dat)
   dat <- dat[eid %in% all_eids]
   add_flow("shared_clinical_cohort", before, dat,
            "Participant not in eligible clinical ICD cohort")
-
+  
   dat[, age_days := as.integer(round(age_years * 365.25))]
   dat[, age_days := pmax(0L, age_days)]
-
+  
   dat[, source_type := fifelse(
     is.na(chapter) | chapter == "" | chapter == "NA",
     "blood_biochemistry",
     as.character(chapter)
   )]
-
+  
   cat("Rows after cleaning:", nrow(dat), " | Patients:", uniqueN(dat$eid), "\n")
-
+  
   # -- Readable event rows -----------------------------------------------------
   readable_event_rows <- dat[, .(
     eid,
@@ -510,25 +527,25 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
   setorder(readable_event_rows, eid, age_days, token_wording, token_value)
   fwrite(readable_event_rows, file.path(out_dir, "readable_event_rows.csv"))
   cat("Written readable_event_rows.csv\n")
-
+  
   # -- Token labelling ---------------------------------------------------------
   dat[, numeric_value := suppressWarnings(as.numeric(code_raw))]
   dat[, is_sex      := coding == SEX_CODING & code_raw %in% c(FEMALE_CODE, MALE_CODE)]
   dat[, is_disease  := coding %in% disease_codings]
   dat[, is_continuous := !is_sex & !is_disease & !is.na(numeric_value)]
-
+  
   dat[is_continuous == TRUE, value_bin := {
     ranks <- frank(numeric_value, ties.method = "average", na.last = "keep")
     bins  <- ceiling(ranks / .N * n_value_bins)
     paste0("Q", pmin(pmax(as.integer(bins), 1L), n_value_bins))
   }, by = coding]
-
+  
   dat[is_sex == TRUE,        token_wording_model := paste0("demographics::", code_raw)]
   dat[is_disease == TRUE,    token_wording_model := paste0(coding, "::", code_raw)]
   dat[is_continuous == TRUE, token_wording_model := paste0(source_type, "::", coding, "::", value_bin)]
   dat[is.na(token_wording_model),
       token_wording_model := paste0(source_type, "::", coding, "::", code_raw)]
-
+  
   # -- Token vocabulary --------------------------------------------------------
   custom_vocab <- unique(dat[is_sex == FALSE, .(
     token_wording = token_wording_model,
@@ -538,7 +555,7 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
   )])
   setorder(custom_vocab, source_type, coding, value_bin, token_wording)
   custom_vocab[, token_id := .I + 3L]
-
+  
   token_dictionary <- rbind(
     data.table(
       token_id      = c(0L, 1L, 2L, 3L),
@@ -552,7 +569,7 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
   setorder(token_dictionary, token_id)
   fwrite(token_dictionary, file.path(out_dir, "token_dictionary.csv"))
   cat("Written token_dictionary.csv with", nrow(token_dictionary), "tokens\n")
-
+  
   # -- Assign token IDs --------------------------------------------------------
   dat <- merge(
     dat,
@@ -568,7 +585,7 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
   dat[, token_id    := as.integer(token_id)]
   dat[, bin_token_id := token_id - 1L]
   cat("Rows after token assignment:", nrow(dat), "\n")
-
+  
   # -- Model-readable event table ----------------------------------------------
   model_event_rows_readable <- dat[, .(
     eid, age_days,
@@ -580,35 +597,35 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
   setorder(model_event_rows_readable, eid, age_days, token_wording, token_value)
   fwrite(model_event_rows_readable, file.path(out_dir, "model_event_rows_readable.csv"))
   cat("Written model_event_rows_readable.csv\n")
-
+  
   # -- Sort before splitting ---------------------------------------------------
   setorder(dat, eid, age_days, token_id)
-
+  
   # -- Apply the shared patient split ------------------------------------------
   # Restrict to patients present in this configuration's data
   cfg_eids <- unique(dat$eid)
   cfg_train <- intersect(train_eids, cfg_eids)
   cfg_val   <- intersect(val_eids,   cfg_eids)
   cfg_test  <- intersect(test_eids,  cfg_eids)
-
+  
   train_dat <- copy(dat[eid %in% cfg_train])
   val_dat   <- copy(dat[eid %in% cfg_val])
   test_dat  <- copy(dat[eid %in% cfg_test])
-
+  
   # Consecutive patient IDs within each split (Delphi uses this only for grouping)
   train_dat[, patient_id := .GRP - 1L, by = eid]
   val_dat[,   patient_id := .GRP - 1L, by = eid]
   test_dat[,  patient_id := .GRP - 1L, by = eid]
-
+  
   setorder(train_dat, patient_id, age_days, token_id)
   setorder(val_dat,   patient_id, age_days, token_id)
   setorder(test_dat,  patient_id, age_days, token_id)
-
+  
   cat(sprintf(
     "Patients  — train: %d | val: %d | test: %d\n",
     uniqueN(train_dat$eid), uniqueN(val_dat$eid), uniqueN(test_dat$eid)
   ))
-
+  
   final_flow <- rbindlist(list(
     rbindlist(flow_rows, use.names = TRUE, fill = TRUE),
     data.table(
@@ -638,7 +655,7 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
     "Events    — train: %d | val: %d | test: %d\n",
     nrow(train_dat), nrow(val_dat), nrow(test_dat)
   ))
-
+  
   # -- Write binary files ------------------------------------------------------
   write_bin <- function(dt, path) {
     m <- as.matrix(dt[, .(patient_id, age_days, bin_token_id)])
@@ -648,25 +665,25 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
     writeBin(as.integer(t(m)), con, size = 4L, endian = "little")
     cat("Written:", path, "(", nrow(dt), "rows )\n")
   }
-
+  
   write_bin(train_dat, file.path(out_dir, "train.bin"))
   write_bin(val_dat,   file.path(out_dir, "val.bin"))
   write_bin(test_dat,  file.path(out_dir, "test.bin"))
-
+  
   # -- Labels ------------------------------------------------------------------
   labels <- token_dictionary[, .(event_name = token_wording)]
   fwrite(labels, file.path(out_dir, "labels.csv"))
   cat("Written labels.csv\n")
-
+  
   # -- Vocabulary metadata (rds) -----------------------------------------------
   vocab_size <- max(token_dictionary$token_id) + 1L
-
+  
   # Tokens that are context-only (not disease targets) are excluded from the loss
   ignore_tokens_vec <- sort(unique(as.integer(c(
     0L, 1L, 2L, 3L,
     custom_vocab[!coding %in% disease_codings, token_id]
   ))))
-
+  
   saveRDS(
     list(
       vocab_size       = vocab_size,
@@ -678,7 +695,7 @@ preprocess_config <- function(cfg_name, sources_list, out_dir,
     file.path(out_dir, "vocab_meta.rds")
   )
   cat("Written vocab_meta.rds\n")
-
+  
   # -- config_values.py (read by Delphi training configs) ----------------------
   ignore_tokens_py <- paste0("[", paste(ignore_tokens_vec, collapse = ", "), "]")
   writeLines(

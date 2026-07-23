@@ -11,13 +11,33 @@ Delphi/data/
 Delphi/out_*/
 Delphi/dryrun_*/
 Delphi/results/
+*.pth
+*.ckpt
+models/
+output/
+outputs/
+predictions/
 
 # Environments
 delphi-env/
+.env
+.env.*
 
 # macOS
 .DS_Store
 
 # Jupyter
 .ipynb_checkpoints/
+
+# OCmmon data formats
 *.ipynb
+*.csv
+*.tsv
+*.rds
+
+
+# Logs, caches, and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
