@@ -26,7 +26,7 @@ bias = False
 learning_rate = 2e-3
 max_iters = 5000
 lr_decay_iters = 5000
-min_lr = 2e-4
+min_lr = 2e-5
 beta2 = 0.99
 warmup_iters = 500
 

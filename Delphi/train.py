@@ -26,7 +26,7 @@ wandb_project = 'delphi'
 wandb_run_name = 'run' + str(time.time())
 
 # data
-dataset = 'ukb_simulated_data'
+dataset = 'ukb_simulated_data' 
 gradient_accumulation_steps = 1  # used to simulate larger batch sizes
 batch_size = 128  # if gradient_accumulation_steps > 1, this is the micro-batch size
 block_size = 24
@@ -34,14 +34,14 @@ block_size = 24
 # model
 n_layer = 6
 n_head = 6
-n_embd = 96
-dropout = 0.2  # for pretraining 0 is good, for finetuning try 0.1+
+n_embd = 120
+dropout = 0.1  # for pretraining 0 is good, for finetuning try 0.1+
 bias = False  # do we use bias inside LayerNorm and Linear layers?
-vocab_size = 256
+vocab_size = 256 
 
 # adamw optimizer
 learning_rate = 6e-4  # max learning rate
-max_iters = 10000  # total number of training iterations
+max_iters = 20000  # total number of training iterations
 weight_decay = 1e-1
 beta1 = 0.9
 beta2 = 0.95
@@ -49,8 +49,8 @@ grad_clip = 1.0  # clip gradients at this value, or disable if == 0.0
 
 # learning rate decay settings
 decay_lr = True  # whether to decay the learning rate
-warmup_iters = 2000  # how many steps to warm up for
-lr_decay_iters = 10000  # should be ~= max_iters per Chinchilla
+warmup_iters = 1000  # how many steps to warm up for
+lr_decay_iters = 20000  # should be ~= max_iters per Chinchilla
 min_lr = 6e-5  # minimum learning rate, should be ~= learning_rate/10 per Chinchilla
 
 # system
@@ -185,7 +185,7 @@ def estimate_loss():
 def get_lr(it):
     # 1) linear warmup for warmup_iters steps
     if it < warmup_iters:
-        return learning_rate * it / warmup_iters
+        return learning_rate * (it + 1) / warmup_iters # this gives the first update a small bot nonzero learning rate, so the first optimizer updated is not ineffective
     # 2) if it > lr_decay_iters, return min learning rate
     if it > lr_decay_iters:
         return min_lr

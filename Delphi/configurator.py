@@ -16,6 +16,8 @@ It therefore updates train.py's global configuration variables directly.
 """
 
 import os
+import shutil
+import subprocess
 import sys
 from ast import literal_eval
 
@@ -76,50 +78,96 @@ for argument in sys.argv[1:]:
 
 
 # Load the vocabulary size and ignored-token list generated during
-# preprocessing. The first path is the cluster layout; the second supports a
-# data directory inside the current Delphi checkout.
+# preprocessing from the same data root and dataset that train.py will use.
 dataset_name = globals().get("dataset")
+configured_data_root = globals().get("data_root")
 
 if not isinstance(dataset_name, str) or not dataset_name:
     raise ValueError("The selected configuration did not define `dataset`")
+if not isinstance(configured_data_root, str) or not configured_data_root:
+    raise ValueError("The selected configuration did not define `data_root`")
 
-dataset_value_candidates = [
-    os.path.expanduser(
-        os.path.join(
-            "~/delphi-amk125_model/data",
-            dataset_name,
-            "config_values.py",
-        )
-    ),
-    os.path.abspath(
-        os.path.join(
-            "data",
-            dataset_name,
-            "config_values.py",
-        )
-    ),
-]
-
-dataset_values_path = next(
-    (
-        path
-        for path in dataset_value_candidates
-        if os.path.isfile(path) and os.path.getsize(path) > 0
-    ),
-    None,
+dataset_dir = os.path.expanduser(
+    os.path.join(configured_data_root, dataset_name)
 )
+python_values_path = os.path.join(dataset_dir, "config_values.py")
+rds_values_path = os.path.join(dataset_dir, "vocab_meta.rds")
 
-if dataset_values_path is None:
-    searched_paths = "\n  - ".join(dataset_value_candidates)
+if os.path.isfile(python_values_path) and os.path.getsize(python_values_path) > 0:
+    dataset_values_path = python_values_path
+    print(f"Loading dataset values from {dataset_values_path}")
+
+    with open(dataset_values_path, encoding="utf-8") as handle:
+        dataset_values_source = handle.read()
+
+    print(dataset_values_source)
+    exec(dataset_values_source, globals())
+elif os.path.isfile(rds_values_path) and os.path.getsize(rds_values_path) > 0:
+    dataset_values_path = rds_values_path
+    rscript = shutil.which("Rscript")
+    if rscript is None:
+        raise RuntimeError(
+            f"Found {rds_values_path}, but Rscript is not installed or is not "
+            "on PATH. Install R or generate config_values.py with "
+            "scripts/write_ukb_amk125_config_values.R."
+        )
+
+    # vocab_meta.rds is an R list containing vocab_size and ignore_tokens.
+    # Emit two simple lines so no third-party Python RDS reader is required.
+    r_source = (
+        "args <- commandArgs(trailingOnly=TRUE); "
+        "meta <- readRDS(args[[1]]); "
+        "if (is.null(meta$vocab_size) || is.null(meta$ignore_tokens)) "
+        "stop('RDS must contain vocab_size and ignore_tokens'); "
+        "cat(as.integer(meta$vocab_size), '\\n'); "
+        "cat(paste(as.integer(meta$ignore_tokens), collapse=','), '\\n')"
+    )
+    result = subprocess.run(
+        [rscript, "-e", r_source, rds_values_path],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    output_lines = result.stdout.splitlines()
+    if len(output_lines) < 2:
+        raise ValueError(
+            f"Could not read vocab_size and ignore_tokens from {rds_values_path}"
+        )
+
+    vocab_size = int(output_lines[0].strip())
+    ignore_tokens = [
+        int(token)
+        for token in output_lines[1].split(",")
+        if token.strip()
+    ]
+    globals()["vocab_size"] = vocab_size
+    globals()["ignore_tokens"] = ignore_tokens
+    print(
+        f"Loaded dataset values from {dataset_values_path}: "
+        f"vocab_size={vocab_size}, ignore_tokens={ignore_tokens}"
+    )
+else:
     raise FileNotFoundError(
-        "Could not find a non-empty config_values.py for dataset "
-        f"{dataset_name!r}. Searched:\n  - {searched_paths}"
+        f"Could not find dataset vocabulary metadata for {dataset_name!r}. "
+        f"Expected either:\n  - {python_values_path}\n  - {rds_values_path}"
     )
 
-print(f"Loading dataset values from {dataset_values_path}")
-
-with open(dataset_values_path, encoding="utf-8") as handle:
-    dataset_values_source = handle.read()
-
-print(dataset_values_source)
-exec(dataset_values_source, globals())
+if not isinstance(vocab_size, int) or isinstance(vocab_size, bool) or vocab_size <= 0:
+    raise ValueError(
+        f"{dataset_values_path} must define vocab_size as a positive integer"
+    )
+if not isinstance(ignore_tokens, list) or not all(
+    isinstance(token, int) and not isinstance(token, bool)
+    for token in ignore_tokens
+):
+    raise ValueError(
+        f"{dataset_values_path} must define ignore_tokens as a list of integers"
+    )
+invalid_ignore_tokens = [
+    token for token in ignore_tokens if token < 0 or token >= vocab_size
+]
+if invalid_ignore_tokens:
+    raise ValueError(
+        f"{dataset_values_path} has ignore_tokens outside the valid range "
+        f"0..{vocab_size - 1}: {invalid_ignore_tokens}"
+    )
