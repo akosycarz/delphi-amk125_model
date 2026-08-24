@@ -1,6 +1,9 @@
+import scipy.stats
+import scipy
+import warnings
 import torch
 from model import DelphiConfig, Delphi
-from tqdm.autonotebook import tqdm
+from tqdm import tqdm
 import pandas as pd
 import numpy as np
 import argparse
@@ -19,6 +22,13 @@ def auc(x1, x2):
 
 
 def get_common_diseases(delphi_labels, filter_min_total=100):
+    if {"coding", "index", "count"}.issubset(delphi_labels.columns):
+        labels_df = delphi_labels[
+            delphi_labels["coding"].isin({"ICD10", "ICD9", "DEATH"})
+            & (delphi_labels["count"] > filter_min_total)
+        ]
+        return labels_df["index"].astype(int).tolist()
+
     chapters_of_interest = [
         "I. Infectious Diseases",
         "II. Neoplasms",
@@ -43,6 +53,29 @@ def get_common_diseases(delphi_labels, filter_min_total=100):
         delphi_labels["ICD-10 Chapter (short)"].isin(chapters_of_interest) * (delphi_labels["count"] > filter_min_total)
     ]
     return labels_df["index"].tolist()
+
+
+def load_dataset_labels(input_path, targets):
+    """Build the legacy evaluator's label table from this dataset's dictionary."""
+    dictionary_path = Path(input_path) / "token_dictionary.csv"
+    if not dictionary_path.is_file():
+        raise FileNotFoundError(f"Dataset dictionary not found: {dictionary_path}")
+    labels = pd.read_csv(dictionary_path)
+    required = {"token_id", "coding", "token_wording"}
+    missing = required - set(labels.columns)
+    if missing:
+        raise ValueError(
+            f"{dictionary_path} is missing required columns: {sorted(missing)}"
+        )
+    target_values = targets.detach().cpu().numpy().reshape(-1)
+    counts = pd.Series(target_values).value_counts()
+    labels = labels.copy()
+    labels["index"] = pd.to_numeric(labels["token_id"], errors="raise").astype(int)
+    labels["name"] = labels["token_wording"].astype(str)
+    labels["ICD-10 Chapter (short)"] = labels["coding"].astype(str)
+    labels["color"] = "#4c78a8"
+    labels["count"] = labels["index"].map(counts).fillna(0).astype(int)
+    return labels
 
 
 def optimized_bootstrapped_auc_gpu(case, control, n_bootstrap=1000):
@@ -201,9 +234,7 @@ def get_auc_delong_var(healthy_scores, diseased_scores):
     return aucs[0], delongcov
 
 
-def get_calibration_auc(j, k, d, p, offset=365.25, age_groups=range(45, 80, 5),
-                        precomputed_idx=None, n_bootstrap=1, use_delong=False):
-              
+def get_calibration_auc(j, k, d, p, offset=365.25, age_groups=range(45, 80, 5), precomputed_idx=None, n_bootstrap=1, use_delong=False):
     age_step = age_groups[1] - age_groups[0]
 
     # Indexes of cases with disease k
@@ -219,7 +250,7 @@ def get_calibration_auc(j, k, d, p, offset=365.25, age_groups=range(45, 80, 5),
 
     # We need to take into account the offset t and use the tokens for prediction that are at least t before the event
     if precomputed_idx is None:
-        pred_idx = (d[1][wall[0]] < d[3][wall].reshape(-1, 1) - offset).sum(1) - 1
+        pred_idx = (d[1][wall[0]] <= d[3][wall].reshape(-1, 1) - offset).sum(1) - 1
     else:
         pred_idx = precomputed_idx[wall]  # It's actually much faster to precompute this
 
@@ -251,10 +282,10 @@ def get_calibration_auc(j, k, d, p, offset=365.25, age_groups=range(45, 80, 5),
         selected[indices] = True
         a[a] = selected
 
-        control = x[len(wk[0]):][a[len(wk[0]):]]
+        control = x[len(wk[0]) :][a[len(wk[0]) :]]
         case = x[: len(wk[0])][a[: len(wk[0])]]
 
-        if len(control) < 2 or len(case) < 2:
+        if len(control) == 0 or len(case) == 0:
             continue
 
         if use_delong:
@@ -275,12 +306,9 @@ def get_calibration_auc(j, k, d, p, offset=365.25, age_groups=range(45, 80, 5),
                 "n_healthy": len(control),
                 "n_diseased": len(case),
             }
-
+            out.append(out_item | auc_delong_dict)
             if n_bootstrap > 1:
                 out_item["bootstrap_idx"] = bootstrap_idx
-
-            out.append(out_item | auc_delong_dict)
-
     return out
 
 
@@ -307,7 +335,8 @@ def evaluate_auc_pipeline(
     Args:
         model (torch.nn.Module): The loaded model set to eval().
         d100k (tuple): Data batch from get_batch.
-        delphi_labels (pd.DataFrame): DataFrame with label info ("delphi_labels_chapters_colours_icd.csv").
+        delphi_labels (pd.DataFrame): label metadata derived from the evaluated
+            dataset's token_dictionary.csv.
         output_path (str | None): Directory where CSV files will be written. If None, files will not be saved.
         diseases_of_interest (np.ndarray or list, optional): If provided, these disease indices are used.
         filter_min_total (int): Minimum total token count to include a token.
@@ -424,25 +453,25 @@ def evaluate_auc_pipeline(
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate AUC")
-    parser.add_argument("--input_path", type=str, required=True,
-                        help="Path to the dataset folder (e.g. data/ukb_amk125_clinical_demographics_ukb_biochem)")
-    parser.add_argument("--output_path", type=str, required=True, help="Path to the output directory")
-    parser.add_argument("--model_ckpt_path", type=str, required=True, help="Path to the model checkpoint (.pt)")
-    parser.add_argument("--no_event_token_rate", type=int, default=5, help="No event token rate")
-    parser.add_argument("--split", type=str, default="test", choices=["val", "test"],
-                        help="Which data split to evaluate on. Use 'test' for final evaluation (default), "
-                             "'val' to match training-time monitoring.")
+    parser.add_argument("--input_path", type=str, help="Path to the dataset")
+    parser.add_argument("--output_path", type=str, help="Path to the output")
+    parser.add_argument("--model_ckpt_path", type=str, help="Path to the model weights")
+    parser.add_argument("--no_event_token_rate", type=int, help="No event token rate")
+    parser.add_argument(
+        "--health_token_replacement_prob", default=0.0, type=float, help="Health token replacement probability"
+    )
     parser.add_argument("--dataset_subset_size", type=int, default=-1, help="Dataset subset size for evaluation")
     parser.add_argument("--n_bootstrap", type=int, default=1, help="Number of bootstrap samples")
     # Optional filtering/chunking parameters:
     parser.add_argument("--filter_min_total", type=int, default=100, help="Minimum total count to filter tokens")
     parser.add_argument("--disease_chunk_size", type=int, default=200, help="Chunk size for processing diseases")
-    parser.add_argument("--delphi_labels_path", type=str, default="delphi_labels_chapters_colours_icd.csv",
-                        help="Path to the external ICD-chapter labels CSV")
     args = parser.parse_args()
 
     input_path = args.input_path
     output_path = args.output_path
+    no_event_token_rate = args.no_event_token_rate
+    health_token_replacement_prob = args.health_token_replacement_prob
+    dataset_subset_size = args.dataset_subset_size
 
     # Create output folder if it doesn't exist.
     Path(output_path).mkdir(exist_ok=True, parents=True)
@@ -460,52 +489,30 @@ def main():
     model.eval()
     model = model.to(device)
 
-    # Load the requested split (test for final evaluation, val for monitoring).
-    split_file = Path(input_path) / f"{args.split}.bin"
-    if not split_file.exists():
-        raise FileNotFoundError(
-            f"{split_file} not found. Run scripts/delphi_preprocess.R to generate it."
-        )
-    print(f"Loading {args.split} split from: {split_file}")
-    data = np.fromfile(split_file, dtype=np.uint32).reshape(-1, 3).astype(np.int64)
+    # Load training and validation data.
+    val = np.fromfile(f"{input_path}/val.bin", dtype=np.uint32).reshape(-1, 3).astype(np.int64)
 
-    data_p2i = get_p2i(data)
+    val_p2i = get_p2i(val)
 
-    dataset_subset_size = args.dataset_subset_size
     if dataset_subset_size == -1:
-        dataset_subset_size = len(data_p2i)
+        dataset_subset_size = len(val_p2i)
 
     # Get a subset batch for evaluation.
     d100k = get_batch(
         range(dataset_subset_size),
-        data,
-        data_p2i,
+        val,
+        val_p2i,
         select="left",
-        block_size=80,
+        block_size=conf.block_size,
         device=device,
         padding="random",
-        no_event_token_rate=args.no_event_token_rate,
+        no_event_token_rate=no_event_token_rate,
     )
 
-    # Load external ICD-chapter labels.
-    delphi_labels = pd.read_csv(args.delphi_labels_path)
-
-    # Filter diseases_of_interest to tokens that exist in this configuration's vocabulary.
-    # labels.csv in the dataset folder lists all tokens produced by delphi_preprocess.R.
-    dataset_labels_path = Path(input_path) / "labels.csv"
-    if dataset_labels_path.exists():
-        dataset_labels = pd.read_csv(dataset_labels_path)
-        # labels.csv rows are 0-indexed and align with model token IDs (row N = token N).
-        available_token_ids = set(dataset_labels.index.tolist())
-        diseases_of_interest = [
-            idx for idx in get_common_diseases(delphi_labels, args.filter_min_total)
-            if idx in available_token_ids
-        ]
-        print(f"Loaded {len(dataset_labels)} tokens from {dataset_labels_path}; "
-              f"{len(diseases_of_interest)} disease tokens selected for evaluation.")
-    else:
-        print(f"Warning: {dataset_labels_path} not found; using all common diseases from delphi_labels.")
-        diseases_of_interest = None
+    # Always use the dictionary belonging to the evaluated dataset.  The old
+    # Delphi-2M labels file has a different 1,270-token vocabulary and silently
+    # selected/scored the wrong columns for the UK Biobank models.
+    delphi_labels = load_dataset_labels(input_path, d100k[2])
 
     # Call the internal evaluation function.
     df_auc_unpooled, df_auc_merged = evaluate_auc_pipeline(
@@ -513,7 +520,7 @@ def main():
         d100k,
         output_path,
         delphi_labels,
-        diseases_of_interest=diseases_of_interest,
+        diseases_of_interest=None,
         filter_min_total=args.filter_min_total,
         disease_chunk_size=args.disease_chunk_size,
         device=device,
